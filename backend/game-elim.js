@@ -26,12 +26,7 @@ function createGame(io, socket, roomId, members, roomData) {
       });
     }
   });
+  console.log("Game started ("+roomId+")");
 }
 
-function testDictionary(arr) {
-  arr.forEach((e) => {
-    console.log(e + ":" + wordGen.dictionaryCheck(e));
-  });
-}
-
-module.exports = { createGame, testDictionary };
+module.exports = { createGame };
