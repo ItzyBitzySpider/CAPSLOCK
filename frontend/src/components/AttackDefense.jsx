@@ -10,12 +10,6 @@ export default function AttackDefense({ roomId, socket }) {
 	const [end, setEnd] = useState(false);
 
 	useEffect(() => {
-		socket.onAny((e, a) => {
-			console.log(e, a);
-		});
-	}, []);
-
-	useEffect(() => {
 		socket.on('game ad update', (players) => {
 			Object.keys(players).forEach((id) => {
 				if (id === socket.id) {
@@ -30,15 +24,20 @@ export default function AttackDefense({ roomId, socket }) {
 			});
 		});
 	}, []);
+
 	// game start signal listener
 	useEffect(() => {
 		socket.on('game ad start', () => {
 			setEnd(false);
 		});
 	}, []);
-	useEffect(() => {}, []);
-	useEffect(() => {}, []);
-	useEffect(() => {}, []);
+
+	// game over listener
+	useEffect(() => {
+		socket.on('game end', () => {
+			setEnd(true);
+		});
+	}, []);
 
 	const handleKeypress = (e) => {
 		if ((e.key === 'Enter') | (e.key === ' ')) {
@@ -51,6 +50,7 @@ export default function AttackDefense({ roomId, socket }) {
 	// method to restart game
 	const restart = () => {
 		setEnd(false);
+        setWordTyped('');
 		socket.emit('game start', { roomId });
 	};
 
