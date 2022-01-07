@@ -16,7 +16,7 @@ function startTimer(io, roomId, roomData) {
 
 const crypto = require("crypto");
 function generateRoomId() {
-  return "abc";
+  //return "abc";
   return crypto.randomBytes(8).toString("hex");
 }
 
