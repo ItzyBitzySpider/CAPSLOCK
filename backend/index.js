@@ -70,7 +70,7 @@ io.on("connection", async (socket) => {
       if (roomData[roomId]["mode"] === "elim")
         gameElim.createGame(io, roomId, Array.from(roomMembers), roomData);
       else if (roomData[roomId]["mode"] === "ad")
-        gameAd.createGame(io, roomId, Array.from(roomMembers), roomData);
+        gameAd.createGame(io, socket, roomId, Array.from(roomMembers), roomData);
     }
   });
 
