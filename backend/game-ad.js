@@ -91,7 +91,10 @@ function closeGame(io, socket, roomId, roomData, opponent) {
     roomData[roomId][opponent]["timers"].delete(k);
   });
 
-  delete roomData[roomId]; 
+  delete roomData[roomId][socket.id];
+  delete roomData[roomId][opponent];
+  delete roomData[roomId]["used"];
+  
   console.log(roomData);
 
   // const room = io.sockets.adapter.rooms.get(roomId);
