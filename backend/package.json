@@ -1,0 +1,16 @@
+{
+  "name": "keebwarrior-backend-server",
+  "version": "0.0.1",
+  "description": "Backend to enable realtime multiplayer",
+  "dependencies": {
+    "express": "^4.17.2",
+    "socket.io": "^4.4.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  },
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  }
+}
