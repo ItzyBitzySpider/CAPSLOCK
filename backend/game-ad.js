@@ -13,6 +13,11 @@ function createGame(roomId, members, roomData) {
 
 function createListeners(io, socket, roomData) {
   socket.on("game ad submit", ({ roomId, word }) => {
+    if (!roomData[roomId]) {
+      console.log("Error creating game: roomData[roomId] undefined");
+      return;
+    }
+
     console.log(socket.id + " submitted " + word);
 
     const opponent = roomData[roomId][socket.id]["opponent"];
@@ -38,8 +43,9 @@ function createListeners(io, socket, roomData) {
               lives: roomData[roomId][opponent]["lives"],
             }
           });
+          console.log("Timed out:",word)
           io.to(roomId).emit("game ad update", word);
-        }, 30000);
+        }, 10000);
         roomData[roomId][opponent]["timers"].set(word, timerId);
         console.log(socket.id, "attack:", word);
       }
