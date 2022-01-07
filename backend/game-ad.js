@@ -1,6 +1,6 @@
 const wordGen = require("./word-generation.js");
 
-function createGame(roomId, members, roomData) {
+function createGame(io, socket, roomId, members, roomData) {
   for (var i = 0; i < members.length; i++) {
     roomData[roomId][members[i]] = {};
     roomData[roomId][members[i]]["wordlist"] = [];
@@ -10,12 +10,14 @@ function createGame(roomId, members, roomData) {
       i == members.length - 1 ? members[0] : members[i + 1];
   }
   roomData[roomId]["used"] = new Set();
+  io.to(roomId).emit("game ad start");
+  updateGameState(io,socket,roomId,roomData,roomData[roomId][socket.id]["opponent"]);
 }
 
 function createListeners(io, socket, roomData) {
   socket.on("game ad submit", ({ roomId, word }) => {
-    if (!roomData[roomId]) {
-      console.log("Error creating game: roomData[roomId] undefined");
+    if (!roomData[roomId] || !roomData[roomId][socket.id]) {
+      console.log("Error creating game: roomData[roomId][socket.id] undefined");
       return;
     }
 
@@ -90,13 +92,17 @@ function closeGame(io, socket, roomId, roomData, opponent) {
     roomData[roomId][opponent]["timers"].delete(k);
   });
 
+  delete roomData[roomId][socket.id];
+  delete roomData[roomId][opponent];
+  delete roomData[roomId]["used"];
+
   console.log(roomData);
 
-  const room = io.sockets.adapter.rooms.get(roomId);
-  if (room)
-    io.sockets.adapter.rooms
-      .get(roomId)
-      .forEach((s) => io.sockets.sockets.get(s).leave(roomId));
+  // const room = io.sockets.adapter.rooms.get(roomId);
+  // if (room)
+  //   io.sockets.adapter.rooms
+  //     .get(roomId)
+  //     .forEach((s) => io.sockets.sockets.get(s).leave(roomId));
   console.log("Game ended");
 }
 
