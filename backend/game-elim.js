@@ -1,6 +1,10 @@
 const wordGen = require("./word-generation.js");
 
 function createGame(io, roomId, members, roomData) {
+  if (!roomData[roomId]) {
+    console.log("Error creating game: roomData[roomId] undefined");
+    return;
+  }
   roomData[roomId]["wordlist"] = new Set(wordGen.generateWordlist());
   console.log(roomData[roomId]["wordlist"]);
   roomData[roomId]["score"] = {};
@@ -16,6 +20,11 @@ function createGame(io, roomId, members, roomData) {
 
 function createListeners(io, socket, roomData) {
   socket.on("game elim submit", ({ roomId, word }) => {
+    if (!roomData[roomId]) {
+      console.log("Error creating game: roomData[roomId] undefined");
+      return;
+    }
+
     console.log(socket.id + " submitted " + word);
 
     const success = roomData[roomId]["wordlist"].delete(word);
@@ -35,6 +44,10 @@ function createListeners(io, socket, roomData) {
 }
 
 function startTimer(io, roomId, roomData) {
+  if (!roomData[roomId]) {
+    console.log("Error creating game: roomData[roomId] undefined");
+    return;
+  }
   roomData[roomId]["timeEnd"] = Date.now() + 60000;
   let intId = setInterval(() => {
     const timeLeft = roomData[roomId]["timeEnd"] - Date.now();
