@@ -54,11 +54,15 @@ function startTimer(io, roomId, roomData) {
     if (timeLeft <= 0) {
       clearInterval(intId);
       io.to(roomId).emit("game end");
-      const room = io.sockets.adapter.rooms.get(roomId);
-      if (room)
-        io.sockets.adapter.rooms
-          .get(roomId)
-          .forEach((s) => io.sockets.sockets.get(s).leave(roomId));
+
+      delete roomData[roomId]["wordlist"];
+      delete roomData[roomId]["score"];
+      
+      // const room = io.sockets.adapter.rooms.get(roomId);
+      // if (room)
+      //   io.sockets.adapter.rooms
+      //     .get(roomId)
+      //     .forEach((s) => io.sockets.sockets.get(s).leave(roomId));
       console.log("Game ended");
     }
   }, 500);
