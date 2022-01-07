@@ -48,8 +48,9 @@ function startTimer(io, roomId, roomData) {
   }
   roomData[roomId]["timeEnd"] = Date.now() + 60000;
   let intId = setInterval(() => {
-    const timeLeft = roomData[roomId]["timeEnd"] - Date.now();
-    io.to(roomId).emit("time", Math.floor(timeLeft/1000));
+    let timeLeft = roomData[roomId]["timeEnd"] - Date.now();
+    if (timeLeft < 0) timeLeft = 0;
+    io.to(roomId).emit("time", Math.floor(timeLeft / 1000));
     if (timeLeft <= 0) {
       clearInterval(intId);
       io.to(roomId).emit("game end");
