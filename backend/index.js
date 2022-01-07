@@ -76,6 +76,7 @@ io.on("connection", async (socket) => {
     if (
       !roomMembers ||
       roomMembers.size === 2 ||
+      !roomData[roomId] ||
       roomData[roomId]["player"] === 1
     )
       socket.emit("room join-fail");
@@ -92,7 +93,7 @@ io.on("connection", async (socket) => {
   socket.on("game start", ({ roomId }) => {
     let roomMembers = io.sockets.adapter.rooms.get(roomId);
 
-    if (roomData[roomId]["mode"] === "elim")
+    if (roomMembers && roomData[roomId]["mode"] === "elim")
       gameElim.createGame(
         io,
         roomId,
@@ -101,8 +102,6 @@ io.on("connection", async (socket) => {
       );
     //else if(roomData[roomId][mode]==='ad') gameAd.createGame(io, socket, roomId, Array.from(roomMembers), roomData);
     //console.log(socket);
-
-    utils.startTimer(io, roomId, roomData);
   });
   
   gameElim.createListeners(io, socket, roomData);
