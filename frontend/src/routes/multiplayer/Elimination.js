@@ -8,16 +8,9 @@ export default function MElimination() {
 	const [roomId, setId] = useState('');
 	const [points, setPoints] = useState(0);
 	const [wordTyped, setWordTyped] = useState('');
-	const [wordlist, setWordlist] = useState({
-		1: 2,
-		2: 2,
-		3: 2,
-		4: 2,
-		5: 2,
-		6: 2,
-	});
+	const [wordlist, setWordlist] = useState({});
 
-	// run once
+	// run once to create room
 	useEffect(() => {
 		socket.emit('room create', { type: 'double elim' }, (id) => {
 			console.log('Created room with ID: ' + id);
@@ -26,6 +19,7 @@ export default function MElimination() {
 		});
 	}, []);
 
+	// game play
 	socket.on('game elim update', ({ user, word, newWord }) => {
 		const answerCorrect = user === socket.id;
 		if (answerCorrect) setPoints(points + word.length);
@@ -36,6 +30,7 @@ export default function MElimination() {
 		console.log(answerCorrect ? 'Correct' : "Opponent claimed '" + word + "'");
 	});
 
+	// game has started
 	socket.on('game elim start', (startWordlist) => {
 		console.log(startWordlist);
 		let wl = {};
