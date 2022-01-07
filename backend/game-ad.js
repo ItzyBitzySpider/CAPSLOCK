@@ -11,16 +11,22 @@ function createGame(io, socket, roomId, members, roomData) {
   socket.on("game ad submit", ({ roomId, word }) => {
     console.log(socket.id + " submitted " + word);
 
+    //Defense
+    if(roomData[roomId][socket.id]["wordlist"].find((e)=>e===word)){
+      roomData[roomId][socket.id]["wordlist"].delete(word);
+    }
+
+    io.to(roomId).emit("game ad update", {
+      roomData
+    });
+    
+
     const success = roomData[roomId]["wordlist"].delete(word);
     if (success) {
       console.log("Word accepted");
       roomData[roomId]["score"][socket.id] += word.length;
       const newWord = wordGen.generateNewWord();
-      io.to(roomId).emit("game ad update", {
-        user: socket.id,
-        word: word,
-        scores: roomData[roomId]["score"],
-      });
+      
     }
   });
 }
