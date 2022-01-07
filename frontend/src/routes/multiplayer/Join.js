@@ -104,13 +104,31 @@ export default function Join() {
 	} else {
 		return (
 			<div className='main-content'>
-				<div>
 					<div>
 						<h1 className='text-3xl p-4'>
 							Room Code: <code>{roomId}</code>
 						</h1>
 					</div>
-				</div>
+					<div className='rounded w-4/5 h-1/2 grid grid-cols-5 grid-rows-4'>
+					</div>
+					<br />
+					<br />
+					<br />
+					<div>
+						<input
+							placeholder='Type here'
+							className='bg-slate-100 w-96 text-xl text-neutral-700 rounded px-3 p-2 focus:outline-none'
+							value={wordTyped}
+							onChange={(e) => {
+								if (e.target.value === ' ') {
+									setWordTyped('');
+								} else {
+									setWordTyped(e.target.value);
+								}
+							}}
+							onKeyDown={handleKeypress}
+						/>
+					</div>
 			</div>
 		);
 	}
