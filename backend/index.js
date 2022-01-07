@@ -15,10 +15,10 @@ io.on("connection", async (socket) => {
     console.log(event, args);
   });
 
-  socket.on("room create", ({ type, roomId }) => {
-    //TODO server side ID creation
+  socket.on("room create", ({ type }, ack) => {
+    const roomId = utils.generateRoomId();
     socket.join(roomId);
-    const { numPlayer, mode } = type.split(" ");
+    const [ numPlayer, mode ] = type.split(" ");
     roomData[roomId] = {
       player: numPlayer === "single" ? 1 : 2,
       mode: mode,
@@ -28,6 +28,7 @@ io.on("connection", async (socket) => {
     if (numPlayer === "single") {
       //TODO single player
     }
+    ack(roomId);
   });
 
   socket.on("room join", ({ roomId }) => {
