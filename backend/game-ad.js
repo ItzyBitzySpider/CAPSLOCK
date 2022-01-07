@@ -1,44 +1,67 @@
 const wordGen = require("./word-generation.js");
 
-function createGame(io, socket, roomId, members, roomData) {
-  members.forEach((m) => {
-    roomData[roomId][m] = {};
-    roomData[roomId][m]["wordlist"] = [];
-    roomData[roomId][m]["timers"] = [];
-    roomData[roomId][m]["lives"] = 3;
-  });
+function createGame(roomId, members, roomData) {
+  for (var i = 0; i < members.length; i++) {
+    roomData[roomId][members[i]] = {};
+    roomData[roomId][members[i]]["wordlist"] = [];
+    roomData[roomId][members[i]]["timers"] = new Map();
+    roomData[roomId][members[i]]["lives"] = 3;
+    roomData[roomId][members[i]]["opponent"] =
+      i == members.length - 1 ? members[0] : members[i + 1];
+  }
+}
 
+function createListeners(io, socket, roomData) {
   socket.on("game ad submit", ({ roomId, word }) => {
     console.log(socket.id + " submitted " + word);
+
+    const opponent = roomData[roomId][socket.id]["opponent"];
 
     const idx = roomData[roomId][socket.id]["wordlist"].indexOf(word);
     if (idx === -1) {
       //Attack
-      for(var i=0;i<members.length;i++){
-        if(members[i] !== socket.id){
-          roomData[roomId][members[i]]["wordlist"].push(word);
-        }
+      if (word.length >= 3 && wordGen.dictionaryCheck(word)) {
+        //TODO non-repeated words
+        roomData[roomId][opponent]["wordlist"].push(word);
+        const oppIdx = roomData[roomId][opponent]["wordlist"].indexOf(word);
+        const timerId = setTimeout(() => {
+          roomData[roomId][opponent]["lives"]--;
+          roomData[roomId][opponent]["wordlist"].splice(oppIdx, 1);
+          roomData[roomId][opponent]["timers"].get(word);
+          io.to(roomId).emit("game ad update", {
+            [socket.id]:{
+              wordlist: roomData[roomId][socket.id]["wordlist"],
+              lives: roomData[roomId][socket.id]["lives"],
+            },
+            [opponent]:{
+              wordlist: roomData[roomId][opponent]["wordlist"],
+              lives: roomData[roomId][opponent]["lives"],
+            }
+          });
+          io.to(roomId).emit("game ad update", word);
+        }, 30000);
+        roomData[roomId][opponent]["timers"].set(word, timerId);
+        console.log(socket.id, "attack:", word);
       }
     } else {
       //Defense
       roomData[roomId][socket.id]["wordlist"].splice(idx, 1);
+      clearTimeout(roomData[roomId][socket.id]["timers"].get(word));
+      console.log(socket.id, "defend:", word);
     }
-
-    io.to(roomId).emit("game ad update", { roomData });
-
-    const success = roomData[roomId]["wordlist"].delete(word);
-    if (success) {
-      console.log("Word accepted");
-      roomData[roomId]["score"][socket.id] += word.length;
-      const newWord = wordGen.generateNewWord();
-    }
+    io.to(roomId).emit("game ad update", {
+      [socket.id]:{
+        wordlist: roomData[roomId][socket.id]["wordlist"],
+        lives: roomData[roomId][socket.id]["lives"],
+      },
+      [opponent]:{
+        wordlist: roomData[roomId][opponent]["wordlist"],
+        lives: roomData[roomId][opponent]["lives"],
+      }
+    });
+    //console.log(roomData[roomId]);
+    //io.to(roomId).emit("game ad update", roomData[roomId]);
   });
 }
 
-function testDictionary(arr) {
-  arr.forEach((e) => {
-    console.log(e + ":" + wordGen.dictionaryCheck(e));
-  });
-}
-
-module.exports = { createGame, testDictionary };
+module.exports = { createGame, createListeners };
