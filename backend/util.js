@@ -10,7 +10,26 @@ function startTimer(io, roomId) {
 
 const crypto = require("crypto");
 function generateRoomId() {
+  return 'abc';
   return crypto.randomBytes(8).toString("hex");
 }
 
-module.exports = { startTimer, generateRoomId };
+class InMemorySessionStore {
+  constructor() {
+    this.sessions = new Map();
+  }
+
+  findSession(id) {
+    return this.sessions.get(id);
+  }
+
+  saveSession(id, session) {
+    this.sessions.set(id, session);
+  }
+
+  findAllSessions() {
+    return [...this.sessions.values()];
+  }
+}
+
+module.exports = { startTimer, generateRoomId, InMemorySessionStore };
