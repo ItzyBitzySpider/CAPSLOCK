@@ -55,7 +55,7 @@ io.on("connection", async (socket) => {
       socket.emit("room join-fail");
     else {
       socket.join(roomId);
-      const roomMembers = io.sockets.adapter.rooms.get(roomId);
+      // const roomMembers = io.sockets.adapter.rooms.get(roomId);
       io.to(roomId).emit("room update", roomData[roomId]["mode"]);
       console.log(
         "Room joined " + roomId + " (" + roomData[roomId]["mode"] + ")"
