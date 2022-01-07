@@ -1,3 +1,7 @@
+const roomData = new Map();
+
+const utils = require("./util.js")
+const gameElim = require("./game-elim.js");
 const httpServer = require("http").createServer();
 const io = require("socket.io")(httpServer, {
   cors: {
@@ -5,109 +9,70 @@ const io = require("socket.io")(httpServer, {
   },
 });
 
-const crypto = require("crypto");
-const randomId = () => crypto.randomBytes(8).toString("hex");
-
-
-io.use(async (socket, next) => {
-  const sessionID = socket.handshake.auth.sessionID;
-  if (sessionID) {
-    const session = await sessionStore.findSession(sessionID);
-    if (session) {
-      socket.sessionID = sessionID;
-      socket.userID = session.userID;
-      socket.username = session.username;
-      return next();
-    }
-  }
-  const username = socket.handshake.auth.username;
-  if (!username) {
-    return next(new Error("invalid username"));
-  }
-  socket.sessionID = randomId();
-  socket.userID = randomId();
-  socket.username = username;
-  next();
-});
-
 io.on("connection", async (socket) => {
-  // persist session
-  sessionStore.saveSession(socket.sessionID, {
-    userID: socket.userID,
-    username: socket.username,
-    connected: true,
+  //DEBUGGING ONLY
+  socket.onAny((event, ...args) => {
+    console.log(event, args);
   });
 
-  // emit session details
-  socket.emit("session", {
-    sessionID: socket.sessionID,
-    userID: socket.userID,
-  });
+  socket.on("room create", ({ type, roomId }) => {
+    //TODO server side ID creation
+    socket.join(roomId);
+    const { numPlayer, mode } = type.split(" ");
+    roomData[roomId] = {
+      player: numPlayer === "single" ? 1 : 2,
+      mode: mode,
+    };
+    console.log("Room created " + roomId + " (" + type + ")");
 
-  // join the "userID" room
-  socket.join(socket.userID);
-
-  // fetch existing users
-  const users = [];
-  const [messages, sessions] = await Promise.all([
-    messageStore.findMessagesForUser(socket.userID),
-    sessionStore.findAllSessions(),
-  ]);
-  const messagesPerUser = new Map();
-  messages.forEach((message) => {
-    const { from, to } = message;
-    const otherUser = socket.userID === from ? to : from;
-    if (messagesPerUser.has(otherUser)) {
-      messagesPerUser.get(otherUser).push(message);
-    } else {
-      messagesPerUser.set(otherUser, [message]);
+    if (numPlayer === "single") {
+      //TODO single player
     }
   });
 
-  sessions.forEach((session) => {
-    users.push({
-      userID: session.userID,
-      username: session.username,
-      connected: session.connected,
-      messages: messagesPerUser.get(session.userID) || [],
-    });
-  });
-  socket.emit("users", users);
+  socket.on("room join", ({ roomId }) => {
+    const roomMembers = io.sockets.adapter.rooms.get(roomId);
+    if (
+      !roomMembers ||
+      roomMembers.size == 2 ||
+      roomData[roomId]["player"] == 1
+    ) {
+      socket.emit("room join-fail");
+    } else {
+      socket.join(roomId);
+      const roomMembers = io.sockets.adapter.rooms.get(roomId);
+      io.to(roomId).emit("room update", Array.from(roomMembers));
+      console.log(
+        "Room joined " + roomId + " (" + roomData[roomId]["mode"] + ")"
+      );
 
-  // notify existing users
-  socket.broadcast.emit("user connected", {
-    userID: socket.userID,
-    username: socket.username,
-    connected: true,
-    messages: [],
-  });
-
-  // forward the private message to the right recipient (and to other tabs of the sender)
-  socket.on("private message", ({ content, to }) => {
-    const message = {
-      content,
-      from: socket.userID,
-      to,
-    };
-    socket.to(to).to(socket.userID).emit("private message", message);
-    messageStore.saveMessage(message);
-  });
+      //TODO: Start game based on game type
+      gameElim.createGame(io, roomId, roomData);
+      gameElim.createListeners(io, socket, roomData);
+      utils.startTimer(io, roomId)
+    }
+  });  
 
   // notify users upon disconnection
+  socket.on("disconnecting", () => {
+    console.log("dc");
+    socket.rooms.forEach((roomId) => {
+      socket.leave(roomId);
+      const roomMembers = io.sockets.adapter.rooms.get(roomId);
+      if (roomMembers) {
+        //Room still exists
+        io.to(roomId).emit("room update", Array.from(roomMembers)); //Inform other user that user in room left
+      } else {
+        //Room no longer exists
+        roomData.delete(roomId); //Delete from roomData map if no one left in room
+        console.log("Deleting " + roomId);
+      }
+    });
+  });
+
   socket.on("disconnect", async () => {
-    const matchingSockets = await io.in(socket.userID).allSockets();
-    const isDisconnected = matchingSockets.size === 0;
-    if (isDisconnected) {
-      // notify other users
-      socket.broadcast.emit("user disconnected", socket.userID);
-      // update the connection status of the session
-      sessionStore.saveSession(socket.sessionID, {
-        userID: socket.userID,
-        username: socket.username,
-        connected: false,
-      });
-    }
+    console.log("dc-ed");
   });
 });
 
-setupWorker(io);
+httpServer.listen(3000);
