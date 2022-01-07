@@ -5,11 +5,7 @@ function createGame(io, socket, roomId, members, roomData) {
   console.log(roomData[roomId]["wordlist"]);
   roomData[roomId]["score"] = {};
   members.forEach((m) => (roomData[roomId]["score"][m] = 0));
-  io.to(roomId).emit(
-    "game elim start",
-    Array.from(roomData[roomId]["wordlist"])
-  );
-  console.log(socket);
+  
   socket.on("game elim submit", ({ roomId, word }) => {
     console.log(socket.id + " submitted " + word);
 
@@ -26,7 +22,11 @@ function createGame(io, socket, roomId, members, roomData) {
       });
     }
   });
-  console.log(socket);
+  
+  io.to(roomId).emit(
+    "game elim start",
+    Array.from(roomData[roomId]["wordlist"])
+  );
   console.log("Game started ("+roomId+")");
 }
 
