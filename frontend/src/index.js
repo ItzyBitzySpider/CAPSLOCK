@@ -18,15 +18,15 @@ ReactDOM.render(
 	<BrowserRouter>
 		<Routes>
 			<Route path='/' element={<Home />} />
-			<Route path='/singleplayer' element={<Singleplayer />} />
+			{/* <Route path='/singleplayer' element={<Singleplayer />} />
 			<Route path='/singleplayer/elimination' element={<SElimination />} />
 			<Route path='/singleplayer/attackdefense' element={<SAttackDefense />} />
-			<Route path='/singleplayer/survival' element={<SSurival />} />
+			<Route path='/singleplayer/survival' element={<SSurival />} /> */}
 			<Route path='/multiplayer' element={<Multiplayer />} />
 			<Route path='/multiplayer/join' element={<Join />} />
 			<Route path='/multiplayer/elimination' element={<MElimination />} />
 			<Route path='/multiplayer/attackdefense' element={<MAttackDefense />} />
-			<Route path='/multiplayer/survival' element={<MSurvival />} />
+			{/* <Route path='/multiplayer/survival' element={<MSurvival />} /> */}
 		</Routes>
 	</BrowserRouter>,
 	document.getElementById('root')
