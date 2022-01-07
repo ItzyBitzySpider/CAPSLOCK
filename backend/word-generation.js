@@ -2,14 +2,16 @@ const fs = require("fs");
 
 function generateWordlist() {
   let wl = [];
-  const fd = fs.openSync("wordlist.txt", "r");
+  const fd = fs.openSync("./wordlist.txt", "r");
+  console.log(fd);
   const stats = fs.fstatSync(fd);
   for (let i = 0; i < 20; i++) wl.push(readWord(fd, stats));
   return wl;
 }
 
 function generateNewWord() {
-  const fd = fs.openSync("wordlist.txt", "r");
+  const fd = fs.openSync("./wordlist.txt", "r");
+  console.log(fd);
   const stats = fs.fstatSync(fd);
   return readWord(fd, stats);
 }
