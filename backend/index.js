@@ -42,7 +42,6 @@ io.on("connection", async (socket) => {
   //DEBUGGING ONLY
   socket.onAny((event, ...args) => {
     console.log(socket.id, ": ", event, args);
-    console.log(io.sockets.adapter.rooms);
   });
 
   /*sessionStore.saveSession(socket.id, {
