@@ -9,7 +9,7 @@ socket.onAny((event, ...args) => {
 	console.log(event, args);
 });
 
-let roomId = '727284dc7af5770a';
+let roomId = '062eb97b2e96211a';
 
 socket.emit('room join', {
 	roomId: roomId,
