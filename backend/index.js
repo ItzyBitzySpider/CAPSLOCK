@@ -91,27 +91,35 @@ io.on("connection", async (socket) => {
   socket.on("game start", ({ roomId }) => {
     let roomMembers = io.sockets.adapter.rooms.get(roomId);
 
-    if(roomData[roomId]['mode']==='elim') gameElim.createGame(io, socket, roomId, Array.from(roomMembers), roomData);
+    if (roomData[roomId]["mode"] === "elim")
+      gameElim.createGame(
+        io,
+        socket,
+        roomId,
+        Array.from(roomMembers),
+        roomData
+      );
     //else if(roomData[roomId][mode]==='ad') gameAd.createGame(io, socket, roomId, Array.from(roomMembers), roomData);
-    console.log(socket);
+    //console.log(socket);
     utils.startTimer(io, roomId, roomData);
   });
 
   // notify users upon disconnection
   socket.on("disconnecting", () => {
     console.log("dc");
-    socket.rooms.forEach((roomId) => {
-      socket.leave(roomId);
-      const roomMembers = io.sockets.adapter.rooms.get(roomId);
-      if (roomMembers) {
-        //Room still exists
-        io.to(roomId).emit("room update", Array.from(roomMembers)); //Inform other user that user in room left
-      } else {
-        //Room no longer exists
-        roomData.delete(roomId); //Delete from roomData map if no one left in room
-        console.log("Deleting " + roomId);
-      }
-    });
+    if (socket.rooms)
+      socket.rooms.forEach((roomId) => {
+        socket.leave(roomId);
+        const roomMembers = io.sockets.adapter.rooms.get(roomId);
+        if (roomMembers) {
+          //Room still exists
+          io.to(roomId).emit("room update", Array.from(roomMembers)); //Inform other user that user in room left
+        } else {
+          //Room no longer exists
+          roomData.delete(roomId); //Delete from roomData map if no one left in room
+          console.log("Deleting " + roomId);
+        }
+      });
   });
 
   socket.on("disconnect", async () => {
