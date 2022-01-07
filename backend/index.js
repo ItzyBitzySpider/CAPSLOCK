@@ -9,23 +9,23 @@ const io = require("socket.io")(httpServer, {
   },
 });
 
-const sessionStore = new utils.InMemorySessionStore();
+//const sessionStore = new utils.InMemorySessionStore();
 const roomData = new Map();
 
-//Middleware to preserve sessionState
+/*//Middleware to preserve sessionState
 io.use((socket, next) => {
   const sessionID = socket.handshake.auth.sessionID;
   if (sessionID) {
     // find existing session
     const session = sessionStore.findSession(sessionID);
     if (session) {
-      socket.sessionID = sessionID;
+      socket.id = sessionID;
       return next();
     }
   }
-  socket.sessionID = crypto.randomBytes(12).toString("hex");
+  socket.id = crypto.randomBytes(12).toString("hex");
   next();
-});
+});*/
 
 io.on("connection", async (socket) => {
   //DEBUGGING ONLY
@@ -33,9 +33,15 @@ io.on("connection", async (socket) => {
     console.log(event, args);
   });
 
-  socket.emit("session", {
-    sessionID: socket.sessionID,
+  /*sessionStore.saveSession(socket.id, {
+    userID: socket.userID,
+    username: socket.username,
+    connected: true,
   });
+
+  socket.emit("session", {
+    sessionID: socket.id,
+  });*/
 
   socket.on("room create", ({ type }, ack) => {
     const roomId = utils.generateRoomId();
@@ -47,10 +53,11 @@ io.on("connection", async (socket) => {
     };
     console.log("Room created " + roomId + " (" + type + ")");
 
+    ack(roomId);
+    
     if (numPlayer === "single") {
       //TODO single player
     }
-    ack(roomId);
   });
 
   socket.on("room join", ({ roomId }) => {
@@ -70,7 +77,7 @@ io.on("connection", async (socket) => {
       );
 
       //TODO: Start game based on game type
-      gameElim.createGame(io, socket, roomId, roomData);
+      gameElim.createGame(io, socket, roomId, Array.from(roomMembers), roomData);
       utils.startTimer(io, roomId);
     }
   });
