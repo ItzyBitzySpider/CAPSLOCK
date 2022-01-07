@@ -9,7 +9,7 @@ socket.onAny((event, ...args) => {
 	console.log(event, args);
 });
 
-let roomId = '062eb97b2e96211a';
+let roomId = 'abc';
 
 socket.emit('room join', {
 	roomId: roomId,
@@ -24,9 +24,13 @@ setTimeout(() => {
 }, 1000);
 
 setTimeout(() => {
-	elimSubmit(socket, roomId, 'model');
-}, 10000);
+	submit(socket, roomId, 'model');
+	submit(socket, roomId, 'test');
+}, 3000);
 
-function elimSubmit(socket, roomId, word) {
-	socket.emit('game elim submit', { roomId: roomId, word: word });
+function submit(socket, roomId, word) {
+	socket.emit('game ad submit', { roomId: roomId, word: word });
 }
+socket.on("game ad update", ({ roomData }) => {
+  console.log(roomData);
+});
