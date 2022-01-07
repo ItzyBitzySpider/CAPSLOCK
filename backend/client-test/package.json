@@ -1,5 +1,5 @@
 {
-  "name": "keebwarrior-backend-client",
+  "name": "capslock-backend-client",
   "version": "0.0.1",
   "description": "Backend to connect to server via sockets",
   "dependencies": {
