@@ -9,7 +9,6 @@ const io = require("socket.io")(httpServer, {
   },
 });
 
-
 const sessionStore = new utils.InMemorySessionStore();
 const roomData = new Map();
 
@@ -27,7 +26,6 @@ io.use((socket, next) => {
   socket.sessionID = crypto.randomBytes(12).toString("hex");
   next();
 });
-
 
 io.on("connection", async (socket) => {
   //DEBUGGING ONLY
@@ -72,8 +70,7 @@ io.on("connection", async (socket) => {
       );
 
       //TODO: Start game based on game type
-      gameElim.createGame(io, roomId, roomData);
-      gameElim.createListeners(io, socket, roomData);
+      gameElim.createGame(io, socket, roomId, roomData);
       utils.startTimer(io, roomId);
     }
   });
