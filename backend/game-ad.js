@@ -9,7 +9,6 @@ function createGame(io, socket, roomId, members, roomData) {
     roomData[roomId][members[i]]["opponent"] =
       i == members.length - 1 ? members[0] : members[i + 1];
   }
-  console.log(roomData);
   roomData[roomId]["used"] = new Set();
   io.to(roomId).emit("game ad start");
   updateGameState(io,socket,roomId,roomData,roomData[roomId][socket.id]["opponent"]);
