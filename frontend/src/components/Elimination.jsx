@@ -9,8 +9,8 @@ export default function Elimination({ roomId, socket }) {
 	const [countdown, setCountdown] = useState(0);
 	const [end, setEnd] = useState(false);
 
+	// game play listener
 	useEffect(() => {
-		// game play
 		socket.on('game elim update', ({ user, wordlist, newWord, scores }) => {
 			const answerCorrect = user === socket.id;
 			Object.keys(scores).forEach((id) => {
@@ -36,10 +36,11 @@ export default function Elimination({ roomId, socket }) {
 		});
 	}, []);
 
+	// game start signal listener
 	useEffect(() => {
-		// game has started
 		socket.on('game elim start', (startWordlist) => {
-			console.log(startWordlist);
+			setEnd(false);
+			// console.log(startWordlist);
 			let arr = [];
 			for (var i = 0; i < startWordlist.length; i++) {
 				let tmp = {};
@@ -51,12 +52,14 @@ export default function Elimination({ roomId, socket }) {
 		});
 	}, []);
 
+	// game timer listener
 	useEffect(() => {
 		socket.on('time', (time) => {
 			setCountdown(time);
 		});
 	}, []);
 
+	// opponent join room listener
 	useEffect(() => {
 		socket.on('room update', (mode) => {
 			console.log(mode);
@@ -64,12 +67,14 @@ export default function Elimination({ roomId, socket }) {
 		});
 	}, []);
 
+	// game over listener
 	useEffect(() => {
 		socket.on('game end', () => {
 			setEnd(true);
 		});
 	}, []);
 
+	// method to send word over socket
 	const handleKeypress = (e) => {
 		if ((e.key === 'Enter') | (e.key === ' ')) {
 			setWordTyped('');
@@ -78,12 +83,14 @@ export default function Elimination({ roomId, socket }) {
 		}
 	};
 
+	// callback to update word state in wordlist from new to old
 	const callback = (i) => {
 		let arr = wordlist;
 		arr[i].state = 2;
 		setWordlist(arr);
 	};
 
+	// method to restart game
 	const restart = () => {
 		setEnd(false);
 		socket.emit('game start', { roomId });
