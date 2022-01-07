@@ -22,6 +22,7 @@ function createListeners(io, socket, roomData){
       console.log("Word accepted");
       roomData[roomId]["score"][socket.id] += word.length;
       const newWord = wordGen.generateNewWord();
+      roomData[roomId]["wordlist"].add(newWord);
       io.to(roomId).emit("game elim update", {
         user: socket.id,
         word: word,
