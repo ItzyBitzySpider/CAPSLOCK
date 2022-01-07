@@ -76,4 +76,4 @@ io.on("connection", async (socket) => {
   });
 });
 
-httpServer.listen(3000);
+httpServer.listen(process.env.PORT?process.env.PORT:3000);
