@@ -1,5 +1,4 @@
 const utils = require("./util.js");
-const wordGen = require("./word-generation.js");
 const gameElim = require("./game-elim.js");
 const gameAd = require("./game-ad.js");
 
@@ -16,23 +15,7 @@ const io = require("socket.io")(httpServer, {
   },
 });
 
-//const sessionStore = new utils.InMemorySessionStore();
 const roomData = new Map();
-
-/*//Middleware to preserve sessionState
-io.use((socket, next) => {
-  const sessionID = socket.handshake.auth.sessionID;
-  if (sessionID) {
-    // find existing session
-    const session = sessionStore.findSession(sessionID);
-    if (session) {
-      socket.id = sessionID;
-      return next();
-    }
-  }
-  socket.id = crypto.randomBytes(12).toString("hex");
-  next();
-});*/
 
 app.post("/validateroom", (req, res) => {
   res.send(Boolean(io.sockets.adapter.rooms.get(req.body)));
@@ -43,16 +26,6 @@ io.on("connection", async (socket) => {
   socket.onAny((event, ...args) => {
     console.log(socket.id, ": ", event, args);
   });
-
-  /*sessionStore.saveSession(socket.id, {
-    userID: socket.userID,
-    username: socket.username,
-    connected: true,
-  });
-
-  socket.emit("session", {
-    sessionID: socket.id,
-  });*/
 
   socket.on("room create", ({ type }, ack) => {
     const roomId = utils.generateRoomId();
@@ -66,9 +39,9 @@ io.on("connection", async (socket) => {
 
     ack(roomId);
 
-    if (numPlayer === "single") {
+    /*if (numPlayer === "single") {
       //TODO single player
-    }
+    }*/
   });
 
   socket.on("room join", ({ roomId }) => {
@@ -93,18 +66,16 @@ io.on("connection", async (socket) => {
   socket.on("game start", ({ roomId }) => {
     let roomMembers = io.sockets.adapter.rooms.get(roomId);
 
-    if (roomMembers && roomData[roomId]["mode"] === "elim")
-      gameElim.createGame(
-        io,
-        roomId,
-        Array.from(roomMembers),
-        roomData
-      );
-    //else if(roomData[roomId][mode]==='ad') gameAd.createGame(io, socket, roomId, Array.from(roomMembers), roomData);
-    //console.log(socket);
+    if (roomMembers) {
+      if (roomData[roomId]["mode"] === "elim")
+        gameElim.createGame(io, roomId, Array.from(roomMembers), roomData);
+      else if (roomData[roomId]["mode"] === "ad")
+        gameAd.createGame(roomId, Array.from(roomMembers), roomData);
+    }
   });
-  
+
   gameElim.createListeners(io, socket, roomData);
+  gameAd.createListeners(io, socket, roomData);
 
   // notify users upon disconnection
   socket.on("disconnecting", () => {
@@ -113,13 +84,13 @@ io.on("connection", async (socket) => {
       socket.rooms.forEach((roomId) => {
         socket.leave(roomId);
         const roomMembers = io.sockets.adapter.rooms.get(roomId);
-        if (roomMembers) {
-          //Room still exists
-          //io.to(roomId).emit("room update", Array.from(roomMembers)); //Inform other user that user in room left
-        } else {
+        if (!roomMembers) {
           //Room no longer exists
           roomData.delete(roomId); //Delete from roomData map if no one left in room
           console.log("Deleting " + roomId);
+        } else {
+          //Room still exists
+          //io.to(roomId).emit("room update", Array.from(roomMembers)); //Inform other user that user in room left
         }
       });
   });
@@ -129,7 +100,7 @@ io.on("connection", async (socket) => {
   });
 });
 
-// gameElim.testDictionary(["even","evan","answer","master"]);
+// utils.testDictionary(["jon"]);
 
 const port = process.env.PORT || 3000;
 httpServer.listen(port);

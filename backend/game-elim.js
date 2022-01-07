@@ -5,15 +5,12 @@ function createGame(io, roomId, members, roomData) {
     console.log("Error creating game: roomData[roomId] undefined");
     return;
   }
-  roomData[roomId]["wordlist"] = new Set(wordGen.generateWordlist());
+  roomData[roomId]["wordlist"] = wordGen.generateWordlist();
   console.log(roomData[roomId]["wordlist"]);
   roomData[roomId]["score"] = {};
   members.forEach((m) => (roomData[roomId]["score"][m] = 0));
 
-  io.to(roomId).emit(
-    "game elim start",
-    Array.from(roomData[roomId]["wordlist"])
-  );
+  io.to(roomId).emit("game elim start", roomData[roomId]["wordlist"]);
   startTimer(io, roomId, roomData);
   console.log("Game started (" + roomId + ")");
 }
@@ -27,15 +24,16 @@ function createListeners(io, socket, roomData) {
 
     console.log(socket.id + " submitted " + word);
 
-    const success = roomData[roomId]["wordlist"].delete(word);
+    const origWordIdx = roomData[roomId]["wordlist"].indexOf(word);
+    const success = origWordIdx !== -1;
     if (success) {
       console.log("Word accepted");
       roomData[roomId]["score"][socket.id] += word.length;
       const newWord = wordGen.generateNewWord();
-      roomData[roomId]["wordlist"].add(newWord);
+      roomData[roomId]["wordlist"].splice(origWordIdx, 1, newWord);
       io.to(roomId).emit("game elim update", {
         user: socket.id,
-        word: word,
+        wordlist: roomData[roomId]["wordlist"],
         newWord: newWord,
         scores: roomData[roomId]["score"],
       });
@@ -51,7 +49,7 @@ function startTimer(io, roomId, roomData) {
   roomData[roomId]["timeEnd"] = Date.now() + 60000;
   let intId = setInterval(() => {
     const timeLeft = roomData[roomId]["timeEnd"] - Date.now();
-    io.to(roomId).emit("time", Math.floor(timeLeft));
+    io.to(roomId).emit("time", Math.floor(timeLeft/1000));
     if (timeLeft <= 0) {
       clearInterval(intId);
       io.to(roomId).emit("game end");
