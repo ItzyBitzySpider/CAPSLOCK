@@ -9,7 +9,7 @@ socket.onAny((event, ...args) => {
 	console.log(event, args);
 });
 
-let roomId = 'b82d436c4993e09e';
+let roomId = 'd338183545d3dd50';
 
 socket.emit('room join', {
 	roomId: roomId,
@@ -25,7 +25,6 @@ setTimeout(() => {
 
 setTimeout(() => {
 	elimSubmit(socket, roomId, 'model');
-  console.log(socket);
 }, 10000);
 
 function elimSubmit(socket, roomId, word) {

@@ -5,7 +5,7 @@ import ElimWord from '../../components/ElimWord';
 
 export default function Join() {
 	const location = useLocation();
-	const URL = 'https://capslock-backend.herokuapp.com/';
+	const URL = 'http://35.240.217.27:3000/';
 	const socket = io(URL, { autoConnect: true });
 	const { roomId, from } = location.state;
 	const [mode, setMode] = useState('');
@@ -18,7 +18,7 @@ export default function Join() {
 		socket.emit('room join', {
 			roomId: roomId,
 		});
-	}, [roomId, socket]);
+	}, []);
 
 	// receive game mode and start game
 	socket.on('room update', (mode) => {
@@ -57,6 +57,7 @@ export default function Join() {
 		if ((e.key === 'Enter') | (e.key === ' ')) {
 			setWordTyped('');
 			console.log(wordTyped);
+			console.log(socket)
 			socket.emit('game elim submit', {
 				roomId: roomId,
 				word: wordTyped,
@@ -73,6 +74,7 @@ export default function Join() {
 							Room Code: <code>{roomId}</code>
 						</h1>
 					</div>
+					<div className=''></div>
 					<div className='rounded w-4/5 h-1/2 grid grid-cols-5 grid-rows-4'>
 						{Object.keys(wordlist).map((word, index) => {
 							return (
