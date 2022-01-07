@@ -38,6 +38,7 @@ function createListeners(io, socket, roomData) {
         word: word,
         newWord: newWord,
         scores: roomData[roomId]["score"],
+        wordlist: Array.from(roomData[roomId]["wordlist"])
       });
     }
   });
