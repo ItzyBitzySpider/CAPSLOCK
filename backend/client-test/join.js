@@ -2,7 +2,9 @@ import { io } from "socket.io-client";
 import { createElimListeners, elimSubmit } from "./includes/game-elim.js";
 import { createRoomListeners } from "./includes/room.js";
 
-const URL = "https://capslock-backend.herokuapp.com/";
+const URL = "http://35.240.217.27:3000/"//"https://capslock-backend.herokuapp.com/";
+// const URL = "http://localhost:3000";
+
 const socket = io(URL, { autoConnect: true });
 
 socket.onAny((event, ...args) => {
@@ -11,16 +13,24 @@ socket.onAny((event, ...args) => {
 
 createRoomListeners(socket);
 
-let roomId = "abc";
+let roomId = "f8eb33c924d78afe";
 
 socket.emit("room join", {
   roomId: roomId,
 });
 
-socket.on("game end",() => {
+socket.on("session", (sessionId) => {
+  socket.auth = { sessionId };
+});
+socket.on("game end", () => {
   console.log("Game ended");
 });
 
 createElimListeners(socket);
+setTimeout(() => {
+socket.emit("game start", { roomId });
+},1000);
 
-elimSubmit(socket, roomId, "model");
+setTimeout(() => {
+  elimSubmit(socket, roomId, "model");
+}, 10000);
