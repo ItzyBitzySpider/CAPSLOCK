@@ -113,7 +113,7 @@ io.on("connection", async (socket) => {
         const roomMembers = io.sockets.adapter.rooms.get(roomId);
         if (roomMembers) {
           //Room still exists
-          io.to(roomId).emit("room update", Array.from(roomMembers)); //Inform other user that user in room left
+          //io.to(roomId).emit("room update", Array.from(roomMembers)); //Inform other user that user in room left
         } else {
           //Room no longer exists
           roomData.delete(roomId); //Delete from roomData map if no one left in room
