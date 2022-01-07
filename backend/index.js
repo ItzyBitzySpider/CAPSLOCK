@@ -105,7 +105,7 @@ io.on("connection", async (socket) => {
     utils.startTimer(io, roomId, roomData);
   });
   
-  gameElim.createListeners(socket, roomData);
+  gameElim.createListeners(io, socket, roomData);
 
   // notify users upon disconnection
   socket.on("disconnecting", () => {

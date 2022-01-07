@@ -13,7 +13,7 @@ function createGame(io, roomId, members, roomData) {
   console.log("Game started ("+roomId+")");
 }
 
-function createListeners(socket, roomData){
+function createListeners(io, socket, roomData){
   socket.on("game elim submit", ({ roomId, word }) => {
     console.log(socket.id + " submitted " + word);
 
