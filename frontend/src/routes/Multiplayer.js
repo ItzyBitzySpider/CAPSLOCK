@@ -11,7 +11,7 @@ export default function Multiplayer() {
 			<button className='text-3xl hover:font-medium py-5'>
 				Attack & Defense
 			</button>
-			<button className='text-3xl hover:font-medium'>Elimination</button>
+			<button className='text-3xl hover:font-medium'>Survival</button>
 			<br />
 			<div className="flex flex-row items-center">
                 <div className="w-32 h-0.5 bg-neutral-400"/>
