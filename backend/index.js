@@ -1,12 +1,39 @@
-const roomData = new Map();
-
 const utils = require("./util.js");
 const gameElim = require("./game-elim.js");
-const httpServer = require("http").createServer();
+
+const express = require("express");
+const bodyParser = require("body-parser");
+const app = express();
+
+app.use(bodyParser.text());
+
+const httpServer = require("http").createServer(app);
 const io = require("socket.io")(httpServer, {
   cors: {
-    origin: "http://localhost:8080",
+    origin: "http://localhost:3000",
   },
+});
+
+//const sessionStore = new utils.InMemorySessionStore();
+const roomData = new Map();
+
+/*//Middleware to preserve sessionState
+io.use((socket, next) => {
+  const sessionID = socket.handshake.auth.sessionID;
+  if (sessionID) {
+    // find existing session
+    const session = sessionStore.findSession(sessionID);
+    if (session) {
+      socket.id = sessionID;
+      return next();
+    }
+  }
+  socket.id = crypto.randomBytes(12).toString("hex");
+  next();
+});*/
+
+app.post("/validateroom", (req, res) => {
+  res.send(Boolean(io.sockets.adapter.rooms.get(req.body)));
 });
 
 io.on("connection", async (socket) => {
@@ -14,6 +41,16 @@ io.on("connection", async (socket) => {
   socket.onAny((event, ...args) => {
     console.log(event, args);
   });
+
+  /*sessionStore.saveSession(socket.id, {
+    userID: socket.userID,
+    username: socket.username,
+    connected: true,
+  });
+
+  socket.emit("session", {
+    sessionID: socket.id,
+  });*/
 
   socket.on("room create", ({ type }, ack) => {
     const roomId = utils.generateRoomId();
@@ -25,10 +62,11 @@ io.on("connection", async (socket) => {
     };
     console.log("Room created " + roomId + " (" + type + ")");
 
+    ack(roomId);
+
     if (numPlayer === "single") {
       //TODO single player
     }
-    ack(roomId);
   });
 
   socket.on("room join", ({ roomId }) => {
@@ -42,14 +80,19 @@ io.on("connection", async (socket) => {
     } else {
       socket.join(roomId);
       const roomMembers = io.sockets.adapter.rooms.get(roomId);
-      io.to(roomId).emit("room update", Array.from(roomMembers));
+      io.to(roomId).emit("room update", roomData[roomId]["mode"]);
       console.log(
         "Room joined " + roomId + " (" + roomData[roomId]["mode"] + ")"
       );
 
       //TODO: Start game based on game type
-      gameElim.createGame(io, roomId, roomData);
-      gameElim.createListeners(io, socket, roomData);
+      gameElim.createGame(
+        io,
+        socket,
+        roomId,
+        Array.from(roomMembers),
+        roomData
+      );
       utils.startTimer(io, roomId);
     }
   });
@@ -76,6 +119,7 @@ io.on("connection", async (socket) => {
   });
 });
 
+// gameElim.testDictionary(["even","evan","answer","master"]);
+
 const port = process.env.PORT ? process.env.PORT : 3000;
-console.log("Started on " + port);
 httpServer.listen(port);

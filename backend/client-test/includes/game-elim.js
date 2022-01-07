@@ -6,7 +6,7 @@ export function createElimListeners(socket) {
   socket.on("game elim start", (startWordlist) => (wordlist = startWordlist));
   socket.on("game elim update", ({ user, word, newWord }) => {
     const wordIdx = wordlist.findIndex((e) => e === word);
-    const answerCorrect = user === socket.id;
+    const answerCorrect = user === socket.sessionId;
     if (answerCorrect) points += word.length;
     wordlist[wordIdx] = newWord;
     console.log(answerCorrect ? "Correct" : "Opponent claimed '" + word + "'");

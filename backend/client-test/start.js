@@ -2,7 +2,7 @@ import { io } from "socket.io-client";
 import { createRoomListeners } from "./includes/room.js";
 import { createElimListeners, elimSubmit } from "./includes/game-elim.js";
 
-const URL = "http://localhost:3000";
+const URL = "https://capslock-backend.herokuapp.com/"
 const socket = io(URL, { autoConnect: true });
 
 socket.onAny((event, ...args) => {
