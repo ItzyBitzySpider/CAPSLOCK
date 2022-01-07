@@ -77,5 +77,4 @@ io.on("connection", async (socket) => {
 });
 
 const port = process.env.PORT ? process.env.PORT : 3000;
-console.log("Started on " + port);
 httpServer.listen(port);

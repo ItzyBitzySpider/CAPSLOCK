@@ -3,7 +3,6 @@ const fs = require("fs");
 function generateWordlist() {
   let wl = [];
   const fd = fs.openSync("./wordlist.txt", "r");
-  console.log(fd);
   const stats = fs.fstatSync(fd);
   for (let i = 0; i < 20; i++) wl.push(readWord(fd, stats));
   return wl;
@@ -11,7 +10,6 @@ function generateWordlist() {
 
 function generateNewWord() {
   const fd = fs.openSync("./wordlist.txt", "r");
-  console.log(fd);
   const stats = fs.fstatSync(fd);
   return readWord(fd, stats);
 }
@@ -22,7 +20,6 @@ function readWord(fd, stats) {
   var buffer = Buffer.alloc(chunkSize);
   fs.readSync(fd, buffer, 0, chunkSize, idx);
   const readContents = buffer.toString("utf8", 0, chunkSize).split("\n");
-  console.log(readContents);
   return readContents[1];
 }
 
