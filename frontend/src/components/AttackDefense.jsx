@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import AdWord from './AdWord';
 
 export default function AttackDefense({ roomId, socket }) {
 	const [wordTyped, setWordTyped] = useState('');
@@ -8,23 +9,23 @@ export default function AttackDefense({ roomId, socket }) {
 	const [oppWords, setOppWords] = useState([]);
 	const [end, setEnd] = useState(false);
 
-    useEffect(()=>{
-        socket.onAny((e,a)=>{
-            console.log(e,a)
-        })
-    },[])
+	useEffect(() => {
+		socket.onAny((e, a) => {
+			console.log(e, a);
+		});
+	}, []);
 
 	useEffect(() => {
 		socket.on('game ad update', (players) => {
 			Object.keys(players).forEach((id) => {
 				if (id === socket.id) {
 					const { wordlist, lives } = players[id];
-                    setUserWords(wordlist);
-                    setUserLives(lives);
+					setUserWords(wordlist);
+					setUserLives(lives);
 				} else {
 					const { wordlist, lives } = players[id];
-                    setOppWords(wordlist);
-                    setOppLives(lives);
+					setOppWords(wordlist);
+					setOppLives(lives);
 				}
 			});
 		});
@@ -75,17 +76,17 @@ export default function AttackDefense({ roomId, socket }) {
 					<h1 className='font-medium text-center text-xl p-4 underline'>
 						Your Lives: {userlives}
 					</h1>
-					{userWords.map((e) => {
-						return <li className='text-center'>{e}</li>;
-					})}
+					{userWords.map((word) => (
+						<AdWord word={word} />
+					))}
 				</ul>
 				<ul>
 					<h1 className='font-medium text-center text-xl p-4 underline'>
 						Opponent Lives: {opplives}
 					</h1>
-					{oppWords.map((e) => {
-						return <li className='text-center'>{e}</li>;
-					})}
+					{oppWords.map((word) => (
+						<AdWord word={word} />
+					))}
 				</ul>
 			</div>
 			<br />
