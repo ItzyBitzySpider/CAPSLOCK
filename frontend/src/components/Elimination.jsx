@@ -39,6 +39,9 @@ export default function Elimination({ roomId, socket }) {
 	// game start signal listener
 	useEffect(() => {
 		socket.on('game elim start', (startWordlist) => {
+			setWordTyped('');
+			setUserPoints(0);
+			setOppPoints(0);
 			setEnd(false);
 			// console.log(startWordlist);
 			let arr = [];
