@@ -13,7 +13,7 @@ socket.onAny((event, ...args) => {
 
 createRoomListeners(socket);
 
-let roomId = "f8eb33c924d78afe";
+let roomId = "3cd1f49ce03bdb47";
 
 socket.emit("room join", {
   roomId: roomId,
@@ -32,5 +32,5 @@ socket.emit("game start", { roomId });
 },1000);
 
 setTimeout(() => {
-  elimSubmit(socket, roomId, "model");
-}, 10000);
+  elimSubmit(socket, roomId, "jon");
+}, 2000);
