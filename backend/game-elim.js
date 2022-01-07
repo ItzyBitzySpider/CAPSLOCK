@@ -2,7 +2,7 @@ const wordGen = require("./word-generation.js");
 
 //TODO combine these 2 into 1 function?
 function createGame(io, roomId, roomData) {
-  roomData[roomId]["wordlist"] = wordGen.generateWordlist();
+  roomData[roomId]["wordlist"] = new Set(wordGen.generateWordlist());
   io.to(roomId).emit(
     "game elim start",
     Array.from(roomData[roomId]["wordlist"])
