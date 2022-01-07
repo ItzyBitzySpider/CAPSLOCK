@@ -37,8 +37,7 @@ function createListeners(io, socket, roomData) {
         user: socket.id,
         word: word,
         newWord: newWord,
-        scores: roomData[roomId]["score"],
-        wordlist: Array.from(roomData[roomId]["wordlist"])
+        scores: roomData[roomId]["score"]
       });
     }
   });
