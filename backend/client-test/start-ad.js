@@ -34,7 +34,7 @@ socket.on("game ad update", ({ roomData }) => {
 setTimeout(() => {
 	submit(socket, roomId, 'model');
 	submit(socket, roomId, 'jon');
-}, 10000);
+}, 20000);
 
 function submit(socket, roomId, word) {
 	socket.emit('game ad submit', { roomId: roomId, word: word });

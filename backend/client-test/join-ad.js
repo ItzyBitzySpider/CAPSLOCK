@@ -26,6 +26,8 @@ setTimeout(() => {
 setTimeout(() => {
 	submit(socket, roomId, 'model');
 	submit(socket, roomId, 'test');
+	submit(socket, roomId, 'bed');
+	submit(socket, roomId, 'breach');
 }, 3000);
 
 function submit(socket, roomId, word) {
