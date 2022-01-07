@@ -1,6 +1,6 @@
 const roomData = new Map();
 
-const utils = require("./util.js")
+const utils = require("./util.js");
 const gameElim = require("./game-elim.js");
 const httpServer = require("http").createServer();
 const io = require("socket.io")(httpServer, {
@@ -18,7 +18,7 @@ io.on("connection", async (socket) => {
   socket.on("room create", ({ type }, ack) => {
     const roomId = utils.generateRoomId();
     socket.join(roomId);
-    const [ numPlayer, mode ] = type.split(" ");
+    const [numPlayer, mode] = type.split(" ");
     roomData[roomId] = {
       player: numPlayer === "single" ? 1 : 2,
       mode: mode,
@@ -50,9 +50,9 @@ io.on("connection", async (socket) => {
       //TODO: Start game based on game type
       gameElim.createGame(io, roomId, roomData);
       gameElim.createListeners(io, socket, roomData);
-      utils.startTimer(io, roomId)
+      utils.startTimer(io, roomId);
     }
-  });  
+  });
 
   // notify users upon disconnection
   socket.on("disconnecting", () => {
@@ -76,4 +76,6 @@ io.on("connection", async (socket) => {
   });
 });
 
-httpServer.listen(process.env.PORT?process.env.PORT:3000);
+const port = process.env.PORT ? process.env.PORT : 3000;
+httpServer.listen(port);
+console.log("Started on " + port);
