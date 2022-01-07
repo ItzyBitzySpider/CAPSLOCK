@@ -1,6 +1,6 @@
 const wordGen = require("./word-generation.js");
 
-function createGame(io, roomId, members, roomData) {
+function createGame(io, socket, roomId, members, roomData) {
   for (var i = 0; i < members.length; i++) {
     roomData[roomId][members[i]] = {};
     roomData[roomId][members[i]]["wordlist"] = [];
@@ -11,6 +11,7 @@ function createGame(io, roomId, members, roomData) {
   }
   roomData[roomId]["used"] = new Set();
   io.to(roomId).emit("game ad start");
+  updateGameState(io,socket,roomId,roomData,roomData[roomId][socket.id]["opponent"]);
 }
 
 function createListeners(io, socket, roomData) {
@@ -94,7 +95,7 @@ function closeGame(io, socket, roomId, roomData, opponent) {
   delete roomData[roomId][socket.id];
   delete roomData[roomId][opponent];
   delete roomData[roomId]["used"];
-  
+
   console.log(roomData);
 
   // const room = io.sockets.adapter.rooms.get(roomId);
