@@ -95,7 +95,6 @@ io.on("connection", async (socket) => {
     if (roomData[roomId]["mode"] === "elim")
       gameElim.createGame(
         io,
-        socket,
         roomId,
         Array.from(roomMembers),
         roomData
