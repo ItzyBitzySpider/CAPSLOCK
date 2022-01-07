@@ -19,11 +19,12 @@ function createGame(io, roomId, members, roomData) {
 }
 
 function createListeners(io, socket, roomData) {
-  if (!roomData[roomId]) {
-    console.log("Error creating game: roomData[roomId] undefined");
-    return;
-  }
   socket.on("game elim submit", ({ roomId, word }) => {
+    if (!roomData[roomId]) {
+      console.log("Error creating game: roomData[roomId] undefined");
+      return;
+    }
+
     console.log(socket.id + " submitted " + word);
 
     const success = roomData[roomId]["wordlist"].delete(word);
