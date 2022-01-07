@@ -13,9 +13,9 @@ export default function Multiplayer() {
 				className='text-3xl hover:font-medium'>
 				Elimination
 			</Link>
-			<button className='text-3xl hover:font-medium py-5'>
+			<Link to='/multiplayer/attackdefense' className='text-3xl hover:font-medium py-5'>
 				Attack & Defense
-			</button>
+			</Link>
 			<button className='text-3xl hover:font-medium'>Survival</button>
 			<br />
 			<div className='flex flex-row items-center'>

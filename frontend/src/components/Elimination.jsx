@@ -4,14 +4,22 @@ import ElimWord from './ElimWord';
 export default function Elimination({ roomId, socket }) {
 	const [wordlist, setWordlist] = useState([]);
 	const [wordTyped, setWordTyped] = useState('');
-	const [points, setPoints] = useState(0);
+	const [userPoints, setUserPoints] = useState(0);
+	const [oppPoints, setOppPoints] = useState(0);
 	const [countdown, setCountdown] = useState(0);
+	const [end, setEnd] = useState(false);
 
+	// game play listener
 	useEffect(() => {
-		// game play
 		socket.on('game elim update', ({ user, wordlist, newWord, scores }) => {
 			const answerCorrect = user === socket.id;
-			if (answerCorrect) setPoints(scores[user]);
+			Object.keys(scores).forEach((id) => {
+				if (id === socket.id) {
+					setUserPoints(scores[id]);
+				} else {
+					setOppPoints(scores[id]);
+				}
+			});
 			console.log(wordlist);
 			const ind = wordlist.findIndex((e) => e === newWord);
 			let newWordlist = [];
@@ -28,10 +36,11 @@ export default function Elimination({ roomId, socket }) {
 		});
 	}, []);
 
+	// game start signal listener
 	useEffect(() => {
-		// game has started
 		socket.on('game elim start', (startWordlist) => {
-			console.log(startWordlist);
+			setEnd(false);
+			// console.log(startWordlist);
 			let arr = [];
 			for (var i = 0; i < startWordlist.length; i++) {
 				let tmp = {};
@@ -43,18 +52,29 @@ export default function Elimination({ roomId, socket }) {
 		});
 	}, []);
 
+	// game timer listener
 	useEffect(() => {
 		socket.on('time', (time) => {
 			setCountdown(time);
 		});
 	}, []);
 
+	// opponent join room listener
 	useEffect(() => {
 		socket.on('room update', (mode) => {
 			console.log(mode);
+			setEnd(false);
 		});
 	}, []);
 
+	// game over listener
+	useEffect(() => {
+		socket.on('game end', () => {
+			setEnd(true);
+		});
+	}, []);
+
+	// method to send word over socket
 	const handleKeypress = (e) => {
 		if ((e.key === 'Enter') | (e.key === ' ')) {
 			setWordTyped('');
@@ -63,18 +83,47 @@ export default function Elimination({ roomId, socket }) {
 		}
 	};
 
+	// callback to update word state in wordlist from new to old
 	const callback = (i) => {
 		let arr = wordlist;
 		arr[i].state = 2;
 		setWordlist(arr);
 	};
 
+	// method to restart game
+	const restart = () => {
+		setEnd(false);
+		socket.emit('game start', { roomId });
+	};
+
 	return (
 		<>
-			<div className='grid grid-cols-2 w-3/5 text-xl'>
-				<h1 className='font-medium underline'>Points: {points}</h1>
-				<h1 className='text-right font-medium underline'>
+			{end && (
+				<div className='absolute h-screen w-screen text-center bg-opacity-70 bg-black text-opacity-100 text-white '>
+					<h1 className='text-6xl mt-80 relative '>Game Over</h1>
+					<br />
+					{userPoints === oppPoints ? (
+						<h2 className='text-3xl font-semibold p-4'>Result: Draw</h2>
+					) : userPoints > oppPoints ? (
+						<h2 className='text-3xl font-semibold p-4'>Result: You Won</h2>
+					) : (
+						<h2 className='text-3xl font-semibold p-4'>Result: You Lost</h2>
+					)}
+					<br />
+					<button onClick={restart} className='text-2xl hover:font-medium'>
+						Play Again
+					</button>
+				</div>
+			)}
+			<div className='grid grid-cols-3 w-3/5 text-xl'>
+				<h1 className='font-medium text-center underline'>
+					Score: {userPoints}
+				</h1>
+				<h1 className='text-center font-medium underline'>
 					Time Left: {countdown}
+				</h1>
+				<h1 className='font-medium text-center underline'>
+					Opponent: {oppPoints}
 				</h1>
 			</div>
 			<div className='rounded w-4/5 h-1/2 grid grid-cols-5 grid-rows-4'>
