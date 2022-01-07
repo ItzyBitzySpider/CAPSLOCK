@@ -1,5 +1,7 @@
 const utils = require("./util.js");
+const wordGen = require("./word-generation.js");
 const gameElim = require("./game-elim.js");
+const gameAd = require("./game-ad.js");
 
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -10,7 +12,7 @@ app.use(bodyParser.text());
 const httpServer = require("http").createServer(app);
 const io = require("socket.io")(httpServer, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "*", //http://localhost:3000",
   },
 });
 
@@ -39,7 +41,7 @@ app.post("/validateroom", (req, res) => {
 io.on("connection", async (socket) => {
   //DEBUGGING ONLY
   socket.onAny((event, ...args) => {
-    console.log(event, args);
+    console.log(socket.id, ": ", event, args);
   });
 
   /*sessionStore.saveSession(socket.id, {
@@ -73,45 +75,54 @@ io.on("connection", async (socket) => {
     const roomMembers = io.sockets.adapter.rooms.get(roomId);
     if (
       !roomMembers ||
-      roomMembers.size == 2 ||
-      roomData[roomId]["player"] == 1
-    ) {
+      roomMembers.size === 2 ||
+      roomData[roomId]["player"] === 1
+    )
       socket.emit("room join-fail");
-    } else {
+    else {
       socket.join(roomId);
       const roomMembers = io.sockets.adapter.rooms.get(roomId);
       io.to(roomId).emit("room update", roomData[roomId]["mode"]);
       console.log(
         "Room joined " + roomId + " (" + roomData[roomId]["mode"] + ")"
       );
+    }
+  });
 
-      //TODO: Start game based on game type
+  socket.on("game start", ({ roomId }) => {
+    let roomMembers = io.sockets.adapter.rooms.get(roomId);
+
+    if (roomData[roomId]["mode"] === "elim")
       gameElim.createGame(
         io,
-        socket,
         roomId,
         Array.from(roomMembers),
         roomData
       );
-      utils.startTimer(io, roomId);
-    }
+    //else if(roomData[roomId][mode]==='ad') gameAd.createGame(io, socket, roomId, Array.from(roomMembers), roomData);
+    //console.log(socket);
+
+    utils.startTimer(io, roomId, roomData);
   });
+  
+  gameElim.createListeners(io, socket, roomData);
 
   // notify users upon disconnection
   socket.on("disconnecting", () => {
     console.log("dc");
-    socket.rooms.forEach((roomId) => {
-      socket.leave(roomId);
-      const roomMembers = io.sockets.adapter.rooms.get(roomId);
-      if (roomMembers) {
-        //Room still exists
-        io.to(roomId).emit("room update", Array.from(roomMembers)); //Inform other user that user in room left
-      } else {
-        //Room no longer exists
-        roomData.delete(roomId); //Delete from roomData map if no one left in room
-        console.log("Deleting " + roomId);
-      }
-    });
+    if (socket.rooms)
+      socket.rooms.forEach((roomId) => {
+        socket.leave(roomId);
+        const roomMembers = io.sockets.adapter.rooms.get(roomId);
+        if (roomMembers) {
+          //Room still exists
+          //io.to(roomId).emit("room update", Array.from(roomMembers)); //Inform other user that user in room left
+        } else {
+          //Room no longer exists
+          roomData.delete(roomId); //Delete from roomData map if no one left in room
+          console.log("Deleting " + roomId);
+        }
+      });
   });
 
   socket.on("disconnect", async () => {
@@ -121,5 +132,5 @@ io.on("connection", async (socket) => {
 
 // gameElim.testDictionary(["even","evan","answer","master"]);
 
-const port = process.env.PORT ? process.env.PORT : 3000;
+const port = process.env.PORT || 3000;
 httpServer.listen(port);
