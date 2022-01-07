@@ -31,4 +31,10 @@ function destroyListeners() {
   socket.off("game elim submit");
 }
 
-module.exports = { createGame, createListeners, destroyListeners };
+function testDictionary(arr) {
+  arr.forEach((e) => {
+    console.log(e + ":" + wordGen.dictionaryCheck(e));
+  });
+}
+
+module.exports = { createGame, createListeners, destroyListeners, testDictionary };
