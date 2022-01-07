@@ -1,7 +1,7 @@
-const roomData = new Map();
-
 const utils = require("./util.js");
 const gameElim = require("./game-elim.js");
+
+const crypto = require("crypto");
 const httpServer = require("http").createServer();
 const io = require("socket.io")(httpServer, {
   cors: {
@@ -9,10 +9,34 @@ const io = require("socket.io")(httpServer, {
   },
 });
 
+
+const sessionStore = new utils.InMemorySessionStore();
+const roomData = new Map();
+
+//Middleware to preserve sessionState
+io.use((socket, next) => {
+  const sessionID = socket.handshake.auth.sessionID;
+  if (sessionID) {
+    // find existing session
+    const session = sessionStore.findSession(sessionID);
+    if (session) {
+      socket.sessionID = sessionID;
+      return next();
+    }
+  }
+  socket.sessionID = crypto.randomBytes(12).toString("hex");
+  next();
+});
+
+
 io.on("connection", async (socket) => {
   //DEBUGGING ONLY
   socket.onAny((event, ...args) => {
     console.log(event, args);
+  });
+
+  socket.emit("session", {
+    sessionID: socket.sessionID,
   });
 
   socket.on("room create", ({ type }, ack) => {
@@ -76,8 +100,7 @@ io.on("connection", async (socket) => {
   });
 });
 
-// gameElim.testDictionary(["even","evan","answer","master"
-// ]);
+// gameElim.testDictionary(["even","evan","answer","master"]);
 
 const port = process.env.PORT ? process.env.PORT : 3000;
 httpServer.listen(port);

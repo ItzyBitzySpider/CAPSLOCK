@@ -12,23 +12,19 @@ function createGame(io, roomId, roomData) {
 
 function createListeners(io, socket, roomData) {
   socket.on("game elim submit", ({ roomId, word }) => {
-    console.log(socket.id + " submitted " + word);
+    console.log(socket.sessionId + " submitted " + word);
 
     const success = roomData[roomId]["wordlist"].delete(word);
     if (success) {
       console.log("Word accepted");
       const newWord = wordGen.generateNewWord();
       io.to(roomId).emit("game elim update", {
-        user: socket.id,
+        user: socket.sessionId,
         word: word,
         newWord: newWord,
       });
     }
   });
-}
-
-function destroyListeners() {
-  socket.off("game elim submit");
 }
 
 function testDictionary(arr) {
@@ -37,4 +33,4 @@ function testDictionary(arr) {
   });
 }
 
-module.exports = { createGame, createListeners, destroyListeners, testDictionary };
+module.exports = { createGame, createListeners, testDictionary };
