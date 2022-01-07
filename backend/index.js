@@ -40,7 +40,7 @@ app.post("/validateroom", (req, res) => {
 io.on("connection", async (socket) => {
   //DEBUGGING ONLY
   socket.onAny((event, ...args) => {
-    console.log(event, args);
+    console.log(socket.id, ": ", event, args);
   });
 
   /*sessionStore.saveSession(socket.id, {
@@ -129,5 +129,5 @@ io.on("connection", async (socket) => {
 
 // gameElim.testDictionary(["even","evan","answer","master"]);
 
-const port = process.env.PORT ? process.env.PORT : 3000;
+const port = process.env.PORT || 3000;
 httpServer.listen(port);
