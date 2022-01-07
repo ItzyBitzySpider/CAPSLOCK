@@ -1,5 +1,6 @@
 const utils = require("./util.js");
 const gameElim = require("./game-elim.js");
+const gameAd = require("./game-ad.js");
 
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -75,9 +76,9 @@ io.on("connection", async (socket) => {
       !roomMembers ||
       roomMembers.size == 2 ||
       roomData[roomId]["player"] == 1
-    ) {
+    )
       socket.emit("room join-fail");
-    } else {
+    else {
       socket.join(roomId);
       const roomMembers = io.sockets.adapter.rooms.get(roomId);
       io.to(roomId).emit("room update", roomData[roomId]["mode"]);
@@ -88,12 +89,11 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("game start", ({ roomId }) => {
-    //TODO: Start game based on game type
-    console.log(roomId);
-    console.log(io.sockets.adapter.rooms);
-    console.log(io.sockets.adapter.rooms.get(roomId));
     let roomMembers = io.sockets.adapter.rooms.get(roomId);
-    gameElim.createGame(io, socket, roomId, Array.from(roomMembers), roomData);
+
+    if(roomData[roomId]['mode']==='elim') gameElim.createGame(io, socket, roomId, Array.from(roomMembers), roomData);
+    //else if(roomData[roomId][mode]==='ad') gameAd.createGame(io, socket, roomId, Array.from(roomMembers), roomData);
+
     utils.startTimer(io, roomId, roomData);
   });
 
