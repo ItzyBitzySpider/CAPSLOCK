@@ -16,6 +16,7 @@ function createGame(io, socket, roomId, members, roomData) {
     const success = roomData[roomId]["wordlist"].delete(word);
     if (success) {
       console.log("Word accepted");
+      roomData[roomId]["score"][socket.id] += word.length;
       const newWord = wordGen.generateNewWord();
       io.to(roomId).emit("game elim update", {
         user: socket.id,
