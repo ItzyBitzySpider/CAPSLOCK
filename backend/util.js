@@ -1,15 +1,22 @@
-function startTimer(io, roomId) {
-  setTimeout(() => {
-    io.to(roomId).emit("game end");
-    io.sockets.adapter.rooms
-      .get(roomId)
-      .forEach((s) => io.sockets.sockets.get(s).leave(roomId));
-    console.log("Game ended");
-  }, 60000);
+function startTimer(io, roomId, roomData) {
+  roomData[roomId]["timeEnd"] = Date.now() + 60000;
+  let intId = setInterval(() => {
+    const timeLeft = roomData[roomId]["timeEnd"] - Date.now();
+    io.to(roomId).emit("time", Math.floor(timeLeft));
+    if (timeLeft <= 0) {
+      clearInterval(intId);
+      io.to(roomId).emit("game end");
+      io.sockets.adapter.rooms
+        .get(roomId)
+        .forEach((s) => io.sockets.sockets.get(s).leave(roomId));
+      console.log("Game ended");
+    }
+  }, 500);
 }
 
 const crypto = require("crypto");
 function generateRoomId() {
+  return "abc";
   return crypto.randomBytes(8).toString("hex");
 }
 
