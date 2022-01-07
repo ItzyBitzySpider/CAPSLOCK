@@ -1,10 +1,13 @@
 const utils = require("./util.js");
 const gameElim = require("./game-elim.js");
 
+const express = require("express");
+const bodyParser = require("body-parser");
+const app = express();
 
+app.use(bodyParser.text());
 
-const crypto = require("crypto");
-const httpServer = require("http").createServer();
+const httpServer = require("http").createServer(app);
 const io = require("socket.io")(httpServer, {
   cors: {
     origin: "http://localhost:3000",
@@ -28,6 +31,10 @@ io.use((socket, next) => {
   socket.id = crypto.randomBytes(12).toString("hex");
   next();
 });*/
+
+app.post("/validateroom", (req, res) => {
+  res.send(Boolean(io.sockets.adapter.rooms.get(req.body)));
+});
 
 io.on("connection", async (socket) => {
   //DEBUGGING ONLY
@@ -56,7 +63,7 @@ io.on("connection", async (socket) => {
     console.log("Room created " + roomId + " (" + type + ")");
 
     ack(roomId);
-    
+
     if (numPlayer === "single") {
       //TODO single player
     }
@@ -79,7 +86,13 @@ io.on("connection", async (socket) => {
       );
 
       //TODO: Start game based on game type
-      gameElim.createGame(io, socket, roomId, Array.from(roomMembers), roomData);
+      gameElim.createGame(
+        io,
+        socket,
+        roomId,
+        Array.from(roomMembers),
+        roomData
+      );
       utils.startTimer(io, roomId);
     }
   });
