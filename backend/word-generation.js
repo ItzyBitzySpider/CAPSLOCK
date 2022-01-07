@@ -25,7 +25,7 @@ function generateNewWord() {
 
 //Advanced range finder binary search
 function dictionaryCheck(x) {
-  const fd = fs.openSync("./dictionary.txt", "r");
+  const fd = fs.openSync("./dictionary_sorted.txt", "r");
   const stats = fs.fstatSync(fd);
   let lower = 0,
     upper = stats.size - 1;
