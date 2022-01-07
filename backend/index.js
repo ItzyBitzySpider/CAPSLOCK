@@ -1,4 +1,5 @@
 const utils = require("./util.js");
+const wordGen = require("./word-generation.js");
 const gameElim = require("./game-elim.js");
 const gameAd = require("./game-ad.js");
 
@@ -11,7 +12,7 @@ app.use(bodyParser.text());
 const httpServer = require("http").createServer(app);
 const io = require("socket.io")(httpServer, {
   cors: {
-    origin: "*",//http://localhost:3000",
+    origin: "*", //http://localhost:3000",
   },
 });
 
@@ -102,7 +103,7 @@ io.on("connection", async (socket) => {
       );
     //else if(roomData[roomId][mode]==='ad') gameAd.createGame(io, socket, roomId, Array.from(roomMembers), roomData);
     //console.log(socket);
-    
+
     utils.startTimer(io, roomId, roomData);
   });
 
