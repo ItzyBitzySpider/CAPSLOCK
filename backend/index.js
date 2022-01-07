@@ -79,22 +79,24 @@ io.on("connection", async (socket) => {
       socket.emit("room join-fail");
     } else {
       socket.join(roomId);
-      const roomMembers = io.sockets.adapter.rooms.get(roomId);
       io.to(roomId).emit("room update", roomData[roomId]["mode"]);
       console.log(
         "Room joined " + roomId + " (" + roomData[roomId]["mode"] + ")"
       );
-
-      //TODO: Start game based on game type
-      gameElim.createGame(
-        io,
-        socket,
-        roomId,
-        Array.from(roomMembers),
-        roomData
-      );
-      utils.startTimer(io, roomId);
     }
+  });
+
+  socket.on("game start", ({ roomId }) => {
+    //TODO: Start game based on game type
+    const roomMembers = io.sockets.adapter.rooms.get(roomId);
+    gameElim.createGame(
+      io,
+      socket,
+      roomId,
+      Array.from(roomMembers),
+      roomData
+    );
+    utils.startTimer(io, roomId);
   });
 
   // notify users upon disconnection
