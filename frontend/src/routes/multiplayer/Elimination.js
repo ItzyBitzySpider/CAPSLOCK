@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import Elimination from '../../components/Elimination';
-import ElimWord from '../../components/ElimWord';
-
 
 const URL = 'http://35.240.217.27:3000/';
 const socket = io(URL, { autoConnect: true });

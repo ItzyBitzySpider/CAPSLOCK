@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import Elimination from '../../components/Elimination';
-import ElimWord from '../../components/ElimWord';
 
 
 const URL = 'http://35.240.217.27:3000/';
