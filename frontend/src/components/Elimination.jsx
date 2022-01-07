@@ -51,6 +51,12 @@ export default function Elimination({ roomId, socket }) {
 		}
 	};
 
+    const callback = (i) =>{
+        let arr = wordlist;
+        arr[i].state=2;
+        setWordlist(arr);
+    };
+
 	return (
 		<>
 			<div className='grid grid-cols-2 w-3/5 text-xl'>
@@ -59,7 +65,7 @@ export default function Elimination({ roomId, socket }) {
 			</div>
 			<div className='rounded w-4/5 h-1/2 grid grid-cols-5 grid-rows-4'>
 				{wordlist.map((obj, index) => {
-					return <ElimWord key={index} word={obj.word} correct={obj.state} />;
+					return <ElimWord key={index} word={obj.word} correct={obj.state} callback={callback} index={index} />;
 				})}
 			</div>
 			<br />

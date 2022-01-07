@@ -1,10 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
-export default function ElimWord({ word, correct = 2 }) {
+export default function ElimWord({ word, correct, callback, index }) {
 	const ref = useRef();
 	const right = 'green';
 	const wrong = 'red';
-	const flash = 'gray';
 	const none = '#1e293b';
 
 	useEffect(() => {
@@ -35,7 +34,8 @@ export default function ElimWord({ word, correct = 2 }) {
 				});
 			}, 300);
 		} 
-	}, [word]);
+		callback(index);
+	}, [callback, correct, index, word]);
 
 	return (
 		<div className='rounded text-center text-lg flex flex-col items-center justify-center'>
