@@ -21,7 +21,8 @@ function readWord(fd, stats) {
   const idx = Math.floor(Math.random() * (stats.size - chunkSize));
   var buffer = Buffer.alloc(chunkSize);
   fs.readSync(fd, buffer, 0, chunkSize, idx);
-  const readContents = buffer.toString("utf8", 0, chunkSize).split("\r\n");
+  const readContents = buffer.toString("utf8", 0, chunkSize).split("\n");
+  console.log(readContents);
   return readContents[1];
 }
 
