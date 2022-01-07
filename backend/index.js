@@ -1,6 +1,8 @@
 const utils = require("./util.js");
 const gameElim = require("./game-elim.js");
 
+
+
 const crypto = require("crypto");
 const httpServer = require("http").createServer();
 const io = require("socket.io")(httpServer, {
@@ -71,7 +73,7 @@ io.on("connection", async (socket) => {
     } else {
       socket.join(roomId);
       const roomMembers = io.sockets.adapter.rooms.get(roomId);
-      io.to(roomId).emit("room update", Array.from(roomMembers));
+      io.to(roomId).emit("room update", roomData[roomId]["mode"]);
       console.log(
         "Room joined " + roomId + " (" + roomData[roomId]["mode"] + ")"
       );
