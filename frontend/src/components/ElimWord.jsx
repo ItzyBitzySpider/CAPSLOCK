@@ -34,20 +34,7 @@ export default function ElimWord({ word, correct = 2 }) {
 					ease: 'none',
 				});
 			}, 300);
-		} else {
-			gsap.to(ref.current, {
-				duration: 0.3,
-				background: flash,
-				ease: 'none',
-			});
-			setTimeout(() => {
-				gsap.to(ref.current, {
-					duration: 0.3,
-					background: none,
-					ease: 'none',
-				});
-			}, 300);
-		}
+		} 
 	}, [word]);
 
 	return (
