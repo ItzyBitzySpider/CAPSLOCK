@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function Multiplayer() {
 	const [roomCode, setRoomCode] = useState('');
@@ -7,7 +8,7 @@ export default function Multiplayer() {
 			<h1 className='text-5xl'>Select Gamemode</h1>
 			<br />
 			<br />
-			<button className='text-3xl hover:font-medium'>Elimination</button>
+			<Link to='/multiplayer/elimination' className='text-3xl hover:font-medium'>Elimination</Link>
 			<button className='text-3xl hover:font-medium py-5'>
 				Attack & Defense
 			</button>
