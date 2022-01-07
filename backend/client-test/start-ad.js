@@ -13,8 +13,10 @@ socket.onAny((event, ...args) => {
 
 createRoomListeners(socket);
 
-socket.emit("room create", { type: "double elim" }, (roomId) => {
-  console.log("Created room with ID: " + roomId);
+var roomId;
+socket.emit("room create", { type: "double ad" }, (rid) => {
+  console.log("Created room with ID: " + rid);
+  roomId = rid;
 });
 
 socket.on("session", (sessionId) => {
@@ -25,3 +27,15 @@ socket.on("game end", () => {
 });
 
 createElimListeners(socket);
+socket.on("game ad update", ({ roomData }) => {
+  console.log(roomData);
+});
+
+setTimeout(() => {
+	submit(socket, roomId, 'model');
+	submit(socket, roomId, 'jon');
+}, 10000);
+
+function submit(socket, roomId, word) {
+	socket.emit('game ad submit', { roomId: roomId, word: word });
+}
