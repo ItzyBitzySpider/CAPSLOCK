@@ -9,7 +9,7 @@ function createGame(io, socket, roomId, members, roomData) {
     "game elim start",
     Array.from(roomData[roomId]["wordlist"])
   );
-
+  console.log(socket);
   socket.on("game elim submit", ({ roomId, word }) => {
     console.log(socket.id + " submitted " + word);
 
@@ -26,6 +26,7 @@ function createGame(io, socket, roomId, members, roomData) {
       });
     }
   });
+  console.log(socket);
   console.log("Game started ("+roomId+")");
 }
 
