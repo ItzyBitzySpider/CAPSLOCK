@@ -2,7 +2,9 @@ import { io } from "socket.io-client";
 import { createRoomListeners } from "./includes/room.js";
 import { createElimListeners, elimSubmit } from "./includes/game-elim.js";
 
-const URL = "https://capslock-backend.herokuapp.com/"
+const URL = "http://35.240.217.27:3000/"; 
+// const URL = "http://localhost:3000";
+
 const socket = io(URL, { autoConnect: true });
 
 socket.onAny((event, ...args) => {
@@ -15,6 +17,9 @@ socket.emit("room create", { type: "double elim" }, (roomId) => {
   console.log("Created room with ID: " + roomId);
 });
 
+socket.on("session", (sessionId) => {
+  socket.auth = { sessionId };
+});
 socket.on("game end", () => {
   console.log("Game ended");
 });
