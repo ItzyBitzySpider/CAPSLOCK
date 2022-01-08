@@ -4,7 +4,7 @@ import { io } from 'socket.io-client';
 import AttackDefense from '../../components/AttackDefense';
 import Elimination from '../../components/Elimination';
 
-const URL = 'http://35.240.217.27:3000/';
+const URL = 'http://35.240.217.27:3003/';
 const socket = io(URL, { autoConnect: true });
 
 export default function Join() {
