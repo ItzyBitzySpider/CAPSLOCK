@@ -2,8 +2,8 @@ import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 export default function ElimWord({ word, correct, callback, index }) {
 	const ref = useRef();
-	const right = 'green';
-	const wrong = 'red';
+	const right = '#14b8a6';
+	const wrong = '#f43f5e';
 	const none = '#1e293b';
 
 	useEffect(() => {

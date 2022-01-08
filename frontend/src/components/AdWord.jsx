@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 
 export default function AdWord({ word }) {
 	const ref = useRef();
-	const red = 'red';
+	const red = '#e11d48';
 
 	useEffect(() => {
 		gsap.to(ref.current, {
@@ -15,7 +15,7 @@ export default function AdWord({ word }) {
 
 	return (
 		<ul className='w-full text-center flex flex-row justify-center p-1'>
-            <p ref={ref} className=' bg-green-500 p-0.5 rounded w-1/2'>
+            <p ref={ref} className=' bg-teal-500 p-0.5 rounded w-1/2'>
 			{word}
             </p>
 		</ul>

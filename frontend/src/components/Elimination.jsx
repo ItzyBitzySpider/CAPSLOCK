@@ -113,23 +113,20 @@ export default function Elimination({ roomId, socket }) {
 						<h2 className='text-3xl font-semibold p-4'>Result: You Lost</h2>
 					)}
 					<br />
-					<button onClick={restart} className='text-2xl hover:font-medium'>
+					<button
+						onClick={restart}
+						className='text-2xl hover:font-medium border bg-teal-600 hover:bg-teal-500 hover:border-2 rounded py-1 px-3'>
 						Play Again
 					</button>
 				</div>
 			)}
-			<div className='grid grid-cols-3 w-3/5 text-xl'>
-				<h1 className='font-medium text-center underline'>
-					Score: {userPoints}
-				</h1>
-				<h1 className='text-center font-medium underline'>
-					Time Left: {countdown}
-				</h1>
-				<h1 className='font-medium text-center underline'>
-					Opponent: {oppPoints}
-				</h1>
+			<div className='grid grid-cols-3 w-3/5 text-2xl'>
+				<h1 className='font-semibold text-center '>Score: {userPoints}</h1>
+				<h1 className='text-center font-semibold '>Time Left: {countdown} s</h1>
+				<h1 className='font-semibold text-center '>Opponent: {oppPoints}</h1>
 			</div>
-			<div className='rounded w-4/5 h-1/2 grid grid-cols-5 grid-rows-4'>
+			
+			<div className='rounded w-4/5 h-3/5 grid grid-cols-5 grid-rows-4'>
 				{wordlist.map((obj, index) => {
 					return (
 						<ElimWord
@@ -142,7 +139,6 @@ export default function Elimination({ roomId, socket }) {
 					);
 				})}
 			</div>
-			<br />
 			<br />
 			<br />
 			<div>
