@@ -19,12 +19,12 @@ export default function MElimination() {
 
 	return (
 		<div className='main-content'>
+			<Elimination socket={socket} roomId={roomId} />
 			<div>
-				<h1 className='text-3xl p-4'>
+				<h1 className='text-xl p-4'>
 					Room Code: <code>{roomId}</code>
 				</h1>
 			</div>
-			<Elimination socket={socket} roomId={roomId} />
 		</div>
 	);
 }

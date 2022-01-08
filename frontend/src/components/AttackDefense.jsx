@@ -66,14 +66,14 @@ export default function AttackDefense({ roomId, socket }) {
 						<h2 className='text-3xl font-semibold p-4'>Result: You Lost</h2>
 					)}
 					<br />
-					<button onClick={restart} className='text-2xl hover:font-medium'>
+					<button onClick={restart} className='text-2xl hover:font-medium border hover:border-2 rounded py-1 px-3'>
 						Play Again
 					</button>
 				</div>
 			)}
 			<div className='rounded w-4/5 h-2/3 grid grid-cols-2 py-4 '>
 				<ul className='list border-r-2'>
-					<h1 className='font-medium text-center text-xl p-4 underline'>
+					<h1 className='font-medium text-center text-2xl p-4 '>
 						Your Lives: {userlives}
 					</h1>
 					{userWords.map((word) => (
@@ -81,7 +81,7 @@ export default function AttackDefense({ roomId, socket }) {
 					))}
 				</ul>
 				<ul>
-					<h1 className='font-medium text-center text-xl p-4 underline'>
+					<h1 className='font-medium text-center text-2xl p-4 '>
 						Opponent Lives: {opplives}
 					</h1>
 					{oppWords.map((word) => (

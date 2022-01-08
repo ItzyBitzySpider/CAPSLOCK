@@ -32,12 +32,12 @@ export default function Join() {
 		return (
 			<>
 				<div className='main-content'>
+					<Elimination socket={socket} roomId={roomId} />
 					<div>
-						<h1 className='text-3xl p-4'>
+						<h1 className='text-xl p-4'>
 							Room Code: <code>{roomId}</code>
 						</h1>
 					</div>
-					<Elimination socket={socket} roomId={roomId} />
 				</div>
 			</>
 		);
@@ -45,12 +45,12 @@ export default function Join() {
 		return (
 			<>
 				<div className='main-content'>
+					<AttackDefense socket={socket} roomId={roomId} />
 					<div>
-						<h1 className='text-3xl p-4'>
+						<h1 className='text-xl p-4'>
 							Room Code: <code>{roomId}</code>
 						</h1>
 					</div>
-					<AttackDefense socket={socket} roomId={roomId} />
 				</div>
 			</>
 		);
