@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 
 export default function AdWord({ word }) {
 	const ref = useRef();
-	const red = '#dc2626';
+	const red = '#e11d48';
 
 	useEffect(() => {
 		gsap.to(ref.current, {

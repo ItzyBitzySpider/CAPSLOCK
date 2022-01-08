@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 export default function ElimWord({ word, correct, callback, index }) {
 	const ref = useRef();
 	const right = '#14b8a6';
-	const wrong = '#ef4444';
+	const wrong = '#f43f5e';
 	const none = '#1e293b';
 
 	useEffect(() => {
