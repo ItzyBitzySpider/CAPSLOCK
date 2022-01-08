@@ -5,7 +5,7 @@ export default function Multiplayer() {
 	const [roomCode, setRoomCode] = useState('');
 	return (
 		<div className='main-content'>
-			<h1 className='text-5xl'>Select Gamemode</h1>
+			<h1 className='text-5xl font-medium'>Select Gamemode</h1>
 			<br />
 			<br />
 			<Link
