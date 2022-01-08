@@ -33,7 +33,7 @@ export default function Multiplayer() {
 					onChange={(e) => setRoomCode(e.target.value)}
 				/>
 				<Link
-					className='h-full w-full'
+					className='h-full'
 					to='/multiplayer/join'
 					state={{ from: 'multiplayer', roomId: roomCode }}>
 					<button
