@@ -2,8 +2,8 @@ import { io } from "socket.io-client";
 import { createRoomListeners } from "./includes/room.js";
 import { createElimListeners } from "./includes/game-elim.js";
 
-// const URL = "http://35.240.217.27:3000/"; 
-const URL = "http://localhost:3000";
+// const URL = "http://35.240.217.27:3003/"; 
+const URL = "http://localhost:3003";
 
 const socket = io(URL, { autoConnect: true });
 
