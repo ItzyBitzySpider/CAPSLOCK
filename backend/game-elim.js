@@ -17,8 +17,8 @@ function createGame(io, roomId, members, roomData) {
 
 function createListeners(io, socket, roomData) {
   socket.on("game elim submit", ({ roomId, word }) => {
-    if (!roomData[roomId]) {
-      console.log("Error creating game: roomData[roomId] undefined");
+    if (!roomData[roomId] || !roomData[roomId]["wordlist"]) {
+      console.log("Error creating game: roomData[roomId][wordlist] undefined");
       return;
     }
 
