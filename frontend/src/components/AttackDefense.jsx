@@ -66,7 +66,7 @@ export default function AttackDefense({ roomId, socket }) {
 						<h2 className='text-3xl font-semibold p-4'>Result: You Lost</h2>
 					)}
 					<br />
-					<button onClick={restart} className='text-2xl hover:font-medium border hover:border-2 rounded py-1 px-3'>
+					<button onClick={restart} className='text-2xl bg-teal-600 hover:font-medium border hover:bg-teal-500  hover:border-2 rounded py-1 px-3'>
 						Play Again
 					</button>
 				</div>

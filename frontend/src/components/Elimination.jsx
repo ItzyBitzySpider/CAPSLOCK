@@ -115,7 +115,7 @@ export default function Elimination({ roomId, socket }) {
 					<br />
 					<button
 						onClick={restart}
-						className='text-2xl hover:font-medium border hover:border-2 rounded py-1 px-3'>
+						className='text-2xl hover:font-medium border bg-teal-600 hover:bg-teal-500 hover:border-2 rounded py-1 px-3'>
 						Play Again
 					</button>
 				</div>
