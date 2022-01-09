@@ -23,7 +23,8 @@ function generateNewWord() {
   return readWord(fd, Math.floor(Math.random() * (stats.size - chunkSize)));
 }
 
-//Advanced range finder binary search
+//Range finder binary search
+//Only read chunks of dictionary file at a time; Does not read file into memory
 function dictionaryCheck(x) {
   const fd = fs.openSync("backend/dictionary_sorted.txt", "r");
   const stats = fs.fstatSync(fd);
@@ -44,11 +45,8 @@ function dictionaryCheck(x) {
       );
     if (resLower === 0 || resUpper === 0) return true;
 
-    // console.log((resLower > 0) + " " + (resUpper < 0));
     if (resLower > 0 && resUpper < 0) {
-      // console.log("Check");
       readContents.forEach((e) => {
-        // console.log("Test: " + e.trim() + " " + (e === x));
         if (e === x) return true;
       });
     }

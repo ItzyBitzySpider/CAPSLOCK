@@ -11,7 +11,7 @@ app.use(bodyParser.text());
 const httpServer = require("http").createServer(app);
 const io = require("socket.io")(httpServer, {
   cors: {
-    origin: "*", //http://localhost:3000",
+    origin: "*", //TODO: Change to deployment platform
   },
 });
 
@@ -24,7 +24,7 @@ app.post("/validateroom", (req, res) => {
 io.on("connection", async (socket) => {
   //DEBUGGING ONLY
   socket.onAny((event, ...args) => {
-    console.log(socket.id, ": ", event, args);
+    console.log(socket.id + ":", event, args);
   });
 
   socket.on("room create", ({ type }, ack) => {
@@ -35,13 +35,9 @@ io.on("connection", async (socket) => {
       player: numPlayer === "single" ? 1 : 2,
       mode: mode,
     };
-    console.log("Room created " + roomId + " (" + type + ")");
+    console.log(roomId, "room created");
 
     ack(roomId);
-
-    /*if (numPlayer === "single") {
-      //TODO single player
-    }*/
   });
 
   socket.on("room join", ({ roomId }) => {
@@ -55,22 +51,34 @@ io.on("connection", async (socket) => {
       socket.emit("room join-fail");
     else {
       socket.join(roomId);
-      // const roomMembers = io.sockets.adapter.rooms.get(roomId);
       io.to(roomId).emit("room update", roomData[roomId]["mode"]);
       console.log(
-        "Room joined " + roomId + " (" + roomData[roomId]["mode"] + ")"
+        socket.id,
+        "joined room:",
+        roomId,
+        "(" + roomData[roomId]["mode"] + ")"
       );
     }
   });
 
   socket.on("game start", ({ roomId }) => {
+    //TODO single player
+    /*if (numPlayer === "single") {
+    }*/
+
     let roomMembers = io.sockets.adapter.rooms.get(roomId);
 
     if (roomMembers) {
       if (roomData[roomId]["mode"] === "elim")
         gameElim.createGame(io, roomId, Array.from(roomMembers), roomData);
       else if (roomData[roomId]["mode"] === "ad")
-        gameAd.createGame(io, socket, roomId, Array.from(roomMembers), roomData);
+        gameAd.createGame(
+          io,
+          socket,
+          roomId,
+          Array.from(roomMembers),
+          roomData
+        );
     }
   });
 
@@ -79,7 +87,6 @@ io.on("connection", async (socket) => {
 
   // notify users upon disconnection
   socket.on("disconnecting", () => {
-    console.log("dc");
     if (socket.rooms)
       socket.rooms.forEach((roomId) => {
         socket.leave(roomId);
@@ -87,8 +94,9 @@ io.on("connection", async (socket) => {
         if (!roomMembers) {
           //Room no longer exists
           roomData.delete(roomId); //Delete from roomData map if no one left in room
-          console.log("Deleting " + roomId);
+          console.log(roomId, "deleted");
         } else {
+          //TODO: Expansion to more than 2 players
           //Room still exists
           //io.to(roomId).emit("room update", Array.from(roomMembers)); //Inform other user that user in room left
         }
@@ -96,11 +104,9 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("disconnect", async () => {
-    console.log("dc-ed");
+    console.log(socket.id, "disconnected");
   });
 });
-
-// utils.testDictionary(["jon"]);
 
 const port = process.env.PORT || 3003;
 httpServer.listen(port);
