@@ -11,23 +11,33 @@ function createGame(io, socket, roomId, members, roomData) {
   }
   roomData[roomId]["used"] = new Set();
   io.to(roomId).emit("game ad start");
-  updateGameState(io,socket,roomId,roomData,roomData[roomId][socket.id]["opponent"]);
+  updateGameState(
+    io,
+    socket,
+    roomId,
+    roomData,
+    roomData[roomId][socket.id]["opponent"]
+  );
 }
 
 function createListeners(io, socket, roomData) {
   socket.on("game ad submit", ({ roomId, word }) => {
     if (!roomData[roomId] || !roomData[roomId][socket.id]) {
-      console.log("Error creating game: roomData[roomId][socket.id] undefined");
+      console.warn(
+        "Error updating game: roomData[roomId][socket.id] undefined"
+      );
       return;
     }
 
-    console.log(socket.id + " submitted " + word);
+    console.log(socket.id, "submitted", word);
 
     const opponent = roomData[roomId][socket.id]["opponent"];
 
     const idx = roomData[roomId][socket.id]["wordlist"].indexOf(word);
+
     if (idx === -1) {
       //Attack
+      //Allowed words: len > 3, no repeats, English (in my dictionary)
       if (
         word.length >= 3 &&
         !roomData[roomId]["used"].has(word) &&
@@ -42,7 +52,7 @@ function createListeners(io, socket, roomData) {
           roomData[roomId][opponent]["wordlist"].splice(oppIdx, 1);
           roomData[roomId][opponent]["timers"].delete(word);
           updateGameState(io, socket, roomId, roomData, opponent);
-          console.log("Timed out:", word);
+          console.log(opponent, "timed out:", word);
 
           //No more lives; Game end
           if (
@@ -56,14 +66,13 @@ function createListeners(io, socket, roomData) {
         console.log(socket.id, "attack:", word);
       }
     } else {
-      //Defense: Remove entered word from list
+      //Defense
+      //Remove entered word from list
       roomData[roomId][socket.id]["wordlist"].splice(idx, 1);
       clearTimeout(roomData[roomId][socket.id]["timers"].get(word));
       console.log(socket.id, "defend:", word);
     }
     updateGameState(io, socket, roomId, roomData, opponent);
-    //console.log(roomData[roomId]);
-    //io.to(roomId).emit("game ad update", roomData[roomId]);
   });
 }
 
@@ -96,14 +105,7 @@ function closeGame(io, socket, roomId, roomData, opponent) {
   delete roomData[roomId][opponent];
   delete roomData[roomId]["used"];
 
-  console.log(roomData);
-
-  // const room = io.sockets.adapter.rooms.get(roomId);
-  // if (room)
-  //   io.sockets.adapter.rooms
-  //     .get(roomId)
-  //     .forEach((s) => io.sockets.sockets.get(s).leave(roomId));
-  console.log("Game ended");
+  console.log(roomId, "game ended");
 }
 
 module.exports = { createGame, createListeners };

@@ -7,7 +7,7 @@ function generateRoomId() {
 
 function testDictionary(arr) {
   arr.forEach((e) => {
-    console.log(e + ":" + wordGen.dictionaryCheck(e));
+    console.log(e + ":", wordGen.dictionaryCheck(e));
   });
 }
 
