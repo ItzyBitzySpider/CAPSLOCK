@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.main-content{
+    @apply bg-slate-800 items-center justify-center flex flex-col h-screen text-white
+}
