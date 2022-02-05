@@ -10,7 +10,7 @@ function readWord(fd, idx) {
 
 function generateWordlist() {
   let wl = [];
-  const fd = fs.openSync("backend/wordlist.txt", "r");
+  const fd = fs.openSync("./wordlist.txt", "r");
   const stats = fs.fstatSync(fd);
   for (let i = 0; i < 20; i++)
     wl.push(readWord(fd, Math.floor(Math.random() * (stats.size - chunkSize))));
@@ -18,7 +18,7 @@ function generateWordlist() {
 }
 
 function generateNewWord() {
-  const fd = fs.openSync("backend/wordlist.txt", "r");
+  const fd = fs.openSync("./wordlist.txt", "r");
   const stats = fs.fstatSync(fd);
   return readWord(fd, Math.floor(Math.random() * (stats.size - chunkSize)));
 }
@@ -26,7 +26,7 @@ function generateNewWord() {
 //Range finder binary search
 //Only read chunks of dictionary file at a time; Does not read file into memory
 function dictionaryCheck(x) {
-  const fd = fs.openSync("backend/dictionary_sorted.txt", "r");
+  const fd = fs.openSync("./dictionary_sorted.txt", "r");
   const stats = fs.fstatSync(fd);
   let lower = 0,
     upper = stats.size - 1;
