@@ -7,3 +7,10 @@ Built with react with tailwindcss
 `/backend`
 
 Built with Node.js and the socket.io Library
+
+TODO Feature List:
+- Single-player mode with bot to fill
+- Multiplayer to be split into public and private rooms
+- AD to add timer 
+- Decrease word count of Elims
+- Change react defaults 
