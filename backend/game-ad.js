@@ -61,7 +61,7 @@ function createListeners(io, socket, roomData) {
           ) {
             closeGame(io, socket, roomId, roomData, opponent);
           }
-        }, 10000);
+        }, 5000);
         roomData[roomId][opponent]["timers"].set(word, timerId);
         console.log(socket.id, "attack:", word);
       }

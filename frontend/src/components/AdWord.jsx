@@ -1,23 +1,19 @@
-import { useEffect, useRef } from 'react';
-import { gsap } from 'gsap';
+import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 
 export default function AdWord({ word }) {
-	const ref = useRef();
-	const red = '#e11d48';
-
-	useEffect(() => {
-		gsap.to(ref.current, {
-			duration: 10,
-			background: red,
-			ease: 'none',
-		});
-	}, [word]);
-
 	return (
 		<ul className='w-full text-center flex flex-row justify-center p-1'>
-            <p ref={ref} className=' bg-teal-500 p-0.5 rounded w-1/2'>
-			{word}
-            </p>
+			<a className='p-0.5 w-1/2'>
+				{word}
+			</a>
+			<CountdownCircleTimer
+				isPlaying
+				duration={5}
+				colors={['#14b8a6','#f9bb15','#e11d48']}
+				colorsTime={[5,2.5,0]}
+				size={24}
+				strokeWidth={5}
+			/>
 		</ul>
 	);
 }
