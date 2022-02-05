@@ -109,4 +109,5 @@ io.on("connection", async (socket) => {
 });
 
 const port = process.env.PORT || 3003;
+console.log('listening on port ' + port);
 httpServer.listen(port);
