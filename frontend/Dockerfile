@@ -1,14 +1,17 @@
 FROM node:latest
 
+# ENV NODE_ENV=production
 WORKDIR /usr/app
 
 COPY package.json .
-COPY yarn.lock .
 
-RUN yarn install
+RUN npm install
 
 COPY . .
 
-EXPOSE 3000
+EXPOSE 80
 
-CMD ["npm", "start"]
+RUN npm run build
+RUN npm install -g serve
+
+CMD serve -s -p 80 build/
