@@ -35,7 +35,7 @@ export default function ElimWord({ word, correct, callback, index }) {
 			}, 300);
 		} 
 		callback(index);
-	}, [ correct ]);
+	}, [ word ]);
 
 	return (
 		<div className='rounded text-center flex flex-col items-center  justify-center'>
