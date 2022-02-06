@@ -3,8 +3,9 @@ import { io } from 'socket.io-client';
 import AttackDefense from '../../components/AttackDefense';
 
 
-const URL = 'http://localhost:3003/';
+const URL = process.env.REACT_APP_SOCKET_URL;
 const socket = io(URL, { autoConnect: true });
+console.log(URL)
 
 export default function MAttackDefense() {
     const [roomId, setId] = useState('');

@@ -4,7 +4,7 @@ import { io } from 'socket.io-client';
 import AttackDefense from '../../components/AttackDefense';
 import Elimination from '../../components/Elimination';
 
-const URL = 'http://localhost:3003/';
+const URL = process.env.REACT_APP_SOCKET_URL;
 const socket = io(URL, { autoConnect: true });
 
 export default function Join() {

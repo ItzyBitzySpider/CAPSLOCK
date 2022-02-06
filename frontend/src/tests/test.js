@@ -1,8 +1,6 @@
 import { io } from 'socket.io-client';
 
-// const URL = 'http://35.240.217.27:3000/'; //"https://capslock-backend.herokuapp.com/";
-const URL = "http://localhost:3003";
-
+const URL = process.env.REACT_APP_SOCKET_URL;
 const socket = io(URL, { autoConnect: true });
 
 socket.onAny((event, ...args) => {
