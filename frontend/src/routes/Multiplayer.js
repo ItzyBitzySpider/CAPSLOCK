@@ -36,9 +36,7 @@ export default function Multiplayer() {
 					className='h-full'
 					to='/multiplayer/join'
 					state={{ from: 'multiplayer', roomId: roomCode }}>
-					<button
-						className='rounded ml-2 border-2 border-slate-200 w-10 h-10 hover:border-white hover:font-black bg-teal-600 hover:bg-teal-500'
-						onClick={console.log(roomCode)}>
+					<button className='rounded ml-2 border-2 border-slate-200 w-10 h-10 hover:border-white hover:font-black bg-teal-600 hover:bg-teal-500'>
 						<svg
 							xmlns='http://www.w3.org/2000/svg'
 							className='h-6 rotate-180'

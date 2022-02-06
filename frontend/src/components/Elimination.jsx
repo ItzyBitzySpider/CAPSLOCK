@@ -40,7 +40,6 @@ export default function Elimination({ roomId, socket }) {
 			setUserPoints(0);
 			setOppPoints(0);
 			setEnd(false);
-			// console.log(startWordlist);
 			let arr = [];
 			for (var i = 0; i < startWordlist.length; i++) {
 				let tmp = {};
@@ -62,7 +61,6 @@ export default function Elimination({ roomId, socket }) {
 	// opponent join room listener
 	useEffect(() => {
 		socket.on('room update', (mode) => {
-			console.log(mode);
 			setEnd(false);
 		});
 	}, []);
@@ -78,7 +76,6 @@ export default function Elimination({ roomId, socket }) {
 	const handleKeypress = (e) => {
 		if ((e.key === 'Enter') | (e.key === ' ')) {
 			setWordTyped('');
-			console.log(wordTyped);
 			socket.emit('game elim submit', { roomId: roomId, word: wordTyped });
 		}
 	};

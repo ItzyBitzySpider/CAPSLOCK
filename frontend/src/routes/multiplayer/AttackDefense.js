@@ -12,9 +12,7 @@ export default function MAttackDefense() {
 	// run once to create room
 	useEffect(() => {
 		socket.emit('room create', { type: 'double ad' }, (id) => {
-			console.log('Created room with ID: ' + id);
 			setId(id);
-			console.log('Client socket ID is: ' + socket.id);
 		});
 	}, []);
     

@@ -42,7 +42,6 @@ export default function AttackDefense({ roomId, socket }) {
 	const handleKeypress = (e) => {
 		if ((e.key === 'Enter') | (e.key === ' ')) {
 			setWordTyped('');
-			console.log(wordTyped);
 			socket.emit('game ad submit', { roomId: roomId, word: wordTyped });
 		}
 	};

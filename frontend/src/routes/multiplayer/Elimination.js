@@ -11,9 +11,7 @@ export default function MElimination() {
 	// run once to create room
 	useEffect(() => {
 		socket.emit('room create', { type: 'double elim' }, (id) => {
-			console.log('Created room with ID: ' + id);
 			setId(id);
-			console.log('Client socket ID is: ' + socket.id);
 		});
 	}, []);
 
