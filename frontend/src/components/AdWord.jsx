@@ -2,8 +2,8 @@ import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 
 export default function AdWord({ word }) {
 	return (
-		<ul className='w-full text-center flex flex-row justify-center p-1'>
-			<a className='p-0.5 w-1/2'>
+		<ul className='ml-3 w-full text-center flex flex-row justify-center sm:p-1'>
+			<a className='p-0.5 w-2/3 sm:w-1/2'>
 				{word}
 			</a>
 			<CountdownCircleTimer

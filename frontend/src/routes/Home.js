@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 export default function Home() {
 	return (
 		<div className='main-content'>
-			<h1 className='text-8xl font-bold'>CAPSLOCK</h1>
+			<h1 className='text-6xl font-bold'>CAPSLOCK</h1>
 			<div className='flex flex-row p-10'>
 				<br/>
 				{/* <button className="w-56">

@@ -117,12 +117,12 @@ export default function Elimination({ roomId, socket }) {
 					</button>
 				</div>
 			)}
-			<div className='grid grid-cols-3 w-3/5 text-2xl'>
-				<h1 className='font-semibold text-center '>Score: {userPoints}</h1>
-				<h1 className='text-center font-semibold '>Time Left: {countdown} s</h1>
-				<h1 className='font-semibold text-center '>Opponent: {oppPoints}</h1>
+			<div className='grid grid-cols-3 w-full text-lg sm:w-3/5 sm:text-2xl'>
+				<h1 className='font-semibold text-center '>Score: <br /> {userPoints}</h1>
+				<h1 className='text-center font-semibold '>Time Left: <br />  {countdown} s</h1>
+				<h1 className='font-semibold text-center '>Opponent: <br /> {oppPoints}</h1>
 			</div>
-			
+
 			<div className='rounded w-1/2 h-2/5 grid grid-cols-3 grid-rows-3'>
 				{wordlist.map((obj, index) => {
 					return (

@@ -71,18 +71,18 @@ export default function AttackDefense({ roomId, socket }) {
 					</button>
 				</div>
 			)}
-			<div className='rounded w-4/5 h-2/3 grid grid-cols-2 py-4 '>
+			<div className='rounded w-full sm:w-2/5 h-3/5 grid grid-cols-2 py-4 '>
 				<ul className='list border-r-2'>
-					<h1 className='font-medium text-center text-2xl p-4 '>
-						Your Lives: {userlives}
+					<h1 className='font-medium text-center text-lg sm:text-2xl sm:p-4'>
+						Your Lives: <br/> {userlives}
 					</h1>
 					{userWords.map((word) => (
 						<AdWord word={word} />
 					))}
 				</ul>
 				<ul>
-					<h1 className='font-medium text-center text-2xl p-4 '>
-						Opponent Lives: {opplives}
+					<h1 className='font-medium text-center text-lg sm:text-2xl sm:p-4 '>
+						Opponent Lives: <br/> {opplives}
 					</h1>
 					{oppWords.map((word) => (
 						<AdWord word={word} />
