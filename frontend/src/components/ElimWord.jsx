@@ -38,8 +38,8 @@ export default function ElimWord({ word, correct, callback, index }) {
 	}, [ correct ]);
 
 	return (
-		<div className='rounded text-center text-lg flex flex-col items-center justify-center'>
-			<p ref={ref} className='text-xl rounded py-3 w-64'>{word}</p>
+		<div className='rounded text-center flex flex-col items-center  justify-center'>
+			<p ref={ref} className='text-lg sm:text-xl rounded py-5 w-full'>{word}</p>
 		</div>
 	);
 }

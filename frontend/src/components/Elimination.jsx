@@ -123,7 +123,7 @@ export default function Elimination({ roomId, socket }) {
 				<h1 className='font-semibold text-center '>Opponent: <br /> {oppPoints}</h1>
 			</div>
 
-			<div className='rounded w-1/2 h-2/5 grid grid-cols-3 grid-rows-3'>
+			<div className='rounded w-full sm:w-1/2 h-2/5 grid grid-cols-3 grid-rows-3'>
 				{wordlist.map((obj, index) => {
 					return (
 						<ElimWord
