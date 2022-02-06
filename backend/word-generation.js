@@ -12,7 +12,7 @@ function generateWordlist() {
   let wl = [];
   const fd = fs.openSync("./wordlist.txt", "r");
   const stats = fs.fstatSync(fd);
-  for (let i = 0; i < 20; i++)
+  for (let i = 0; i < 9; i++)
     wl.push(readWord(fd, Math.floor(Math.random() * (stats.size - chunkSize))));
   return wl;
 }

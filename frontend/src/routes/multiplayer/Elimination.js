@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import Elimination from '../../components/Elimination';
 
-const URL = 'http:/localhost:3003/';
+const URL = 'http://localhost:3003/';
 const socket = io(URL, { autoConnect: true });
 
 export default function MElimination() {

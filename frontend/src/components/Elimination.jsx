@@ -20,7 +20,6 @@ export default function Elimination({ roomId, socket }) {
 					setOppPoints(scores[id]);
 				}
 			});
-			console.log(wordlist);
 			const ind = wordlist.findIndex((e) => e === newWord);
 			let newWordlist = [];
 			for (var i = 0; i < wordlist.length; i++) {
@@ -30,9 +29,7 @@ export default function Elimination({ roomId, socket }) {
 				newWordlist[i] = tmp;
 			}
 			newWordlist[ind]['state'] = answerCorrect ? 1 : 0;
-			console.log(newWordlist);
 			setWordlist(newWordlist);
-			console.log(answerCorrect ? 'Correct' : 'Opponent claimed a word');
 		});
 	}, []);
 
@@ -126,7 +123,7 @@ export default function Elimination({ roomId, socket }) {
 				<h1 className='font-semibold text-center '>Opponent: {oppPoints}</h1>
 			</div>
 			
-			<div className='rounded w-4/5 h-3/5 grid grid-cols-5 grid-rows-4'>
+			<div className='rounded w-1/2 h-2/5 grid grid-cols-3 grid-rows-3'>
 				{wordlist.map((obj, index) => {
 					return (
 						<ElimWord
@@ -139,7 +136,6 @@ export default function Elimination({ roomId, socket }) {
 					);
 				})}
 			</div>
-			<br />
 			<br />
 			<div>
 				<input
