@@ -1,0 +1,20 @@
+{
+  "name": "capslock",
+  "version": "1.0.0",
+  "description": "Typing Game",
+  "main": "-",
+  "scripts": {
+    "build": "docker-compose build",
+    "dev": "docker-compose up"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ItzyBitzySpider/CAPSLOCK.git"
+  },
+  "author": "Ocean",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ItzyBitzySpider/CAPSLOCK/issues"
+  },
+  "homepage": "https://github.com/ItzyBitzySpider/CAPSLOCK#readme"
+}

@@ -41,8 +41,8 @@ export default function AttackDefense({ roomId, socket }) {
 
 	const handleKeypress = (e) => {
 		if ((e.key === 'Enter') | (e.key === ' ')) {
+			socket.emit('game ad submit', { roomId: roomId, word: wordTyped.toLowerCase() });
 			setWordTyped('');
-			socket.emit('game ad submit', { roomId: roomId, word: wordTyped });
 		}
 	};
 
@@ -95,11 +95,7 @@ export default function AttackDefense({ roomId, socket }) {
 					className='bg-slate-100 w-96 text-xl text-neutral-700 rounded px-3 p-2 focus:outline-none'
 					value={wordTyped}
 					onChange={(e) => {
-						if (e.target.value === ' ') {
-							setWordTyped('');
-						} else {
-							setWordTyped(e.target.value);
-						}
+						if (e.target.value !== ' ') setWordTyped(e.target.value);	
 					}}
 					onKeyDown={handleKeypress}
 				/>

@@ -75,11 +75,10 @@ export default function Elimination({ roomId, socket }) {
 	// method to send word over socket
 	const handleKeypress = (e) => {
 		if ((e.key === 'Enter') | (e.key === ' ')) {
+			socket.emit('game elim submit', { roomId: roomId, word: wordTyped.toLowerCase() });
 			setWordTyped('');
-			socket.emit('game elim submit', { roomId: roomId, word: wordTyped });
 		}
 	};
-
 	// callback to update word state in wordlist from new to old
 	const callback = (i) => {
 		let arr = wordlist;
@@ -140,11 +139,7 @@ export default function Elimination({ roomId, socket }) {
 					className='bg-slate-100 w-96 text-xl text-neutral-700 rounded px-3 p-2 focus:outline-none'
 					value={wordTyped}
 					onChange={(e) => {
-						if (e.target.value === ' ') {
-							setWordTyped('');
-						} else {
-							setWordTyped(e.target.value);
-						}
+						if (e.target.value !== ' ') setWordTyped(e.target.value);
 					}}
 					onKeyDown={handleKeypress}
 				/>
