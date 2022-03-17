@@ -5,7 +5,8 @@
   "main": "-",
   "scripts": {
     "build": "docker-compose build",
-    "dev": "docker-compose up"
+    "dev": "docker-compose up",
+    "prod": "docker-compose -f docker-compose-prod.yml up "
   },
   "repository": {
     "type": "git",
