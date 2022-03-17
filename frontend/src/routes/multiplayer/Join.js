@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import AttackDefense from '../../components/AttackDefense';
 import Elimination from '../../components/Elimination';
+import { Link } from 'react-router-dom';
 
 const URL = process.env.REACT_APP_SOCKET_URL;
 const socket = io(URL, { autoConnect: true });
@@ -25,6 +26,20 @@ export default function Join() {
 			console.log(mode);
 			setMode(mode);
 			socket.emit('game start', { roomId });
+		});
+	}, []);
+
+	// room full
+	useEffect(() => {
+		socket.on('room full', () => {
+			setMode('Room Full');
+		});
+	}, []);
+
+	// room does not exist
+	useEffect(() => {
+		socket.on('room does not exist', () => {
+			setMode('Room ' + roomId + ' does not exist');
 		});
 	}, []);
 
@@ -57,20 +72,15 @@ export default function Join() {
 	} else {
 		return (
 			<div className='main-content'>
-				<div>
-					<h1 className='text-3xl p-4'>
-						Room Code: <code>{roomId}</code>
-					</h1>
+				<div className='py-4'>
+					<h1 className='text-4xl'>{mode}</h1>
 				</div>
-				<div className='rounded w-4/5 h-1/2 grid grid-cols-5 grid-rows-4'></div>
-				<br />
-				<br />
-				<br />
-				<div>
-					<input
-						placeholder='Type here'
-						className='bg-slate-100 w-96 text-xl disabled text-neutral-700 rounded px-3 p-2 focus:outline-none'
-					/>
+				<div className='py-4'>
+					<Link className='h-full' to='/multiplayer/' state={{ from: 'join' }}>
+						<button className='rounded px-6 py-2 border-2 border-slate-200 hover:border-white hover:font-black bg-teal-600 hover:bg-teal-500'>
+							Return
+						</button>
+					</Link>
 				</div>
 			</div>
 		);
