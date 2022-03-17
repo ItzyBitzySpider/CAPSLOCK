@@ -1,24 +1,16 @@
-FROM node:latest As builder
+FROM node:latest
+
 WORKDIR /usr/app
 
 COPY package.json .
+COPY yarn.lock .
 
-RUN npm install
+RUN yarn install
+
+RUN mkdir -p node_modules/.cache && chmod -R 777 node_modules/.cache
 
 COPY . .
 
-EXPOSE 80
+EXPOSE 3000
 
-RUN npm run build
-
-# Bundle static assets with nginx
-FROM nginx:latest as production
-ENV NODE_ENV proudction
-# Copy built assets from builder
-COPY --from=builder /usr/app/build /usr/share/nginx/html
-# Add your nginx.conf
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-# Expose port
-EXPOSE 80
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["npm", "start"]

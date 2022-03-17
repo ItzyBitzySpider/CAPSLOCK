@@ -8,7 +8,9 @@ export default function AttackDefense({ roomId, socket }) {
 	const [userWords, setUserWords] = useState([]);
 	const [oppWords, setOppWords] = useState([]);
 	const [end, setEnd] = useState(false);
+	const [countdown, setCountdown] = useState('');
 
+	// game play listener
 	useEffect(() => {
 		socket.on('game ad update', (players) => {
 			Object.keys(players).forEach((id) => {
@@ -22,6 +24,15 @@ export default function AttackDefense({ roomId, socket }) {
 					setOppLives(lives);
 				}
 			});
+		});
+	}, []);
+
+	// game countdown to start listener
+	useEffect(() => {
+		socket.on('countdown', (count) => {
+			setCountdown(count);
+			console.log(count);
+			if (count === 'Start') setCountdown('');
 		});
 	}, []);
 
@@ -41,7 +52,10 @@ export default function AttackDefense({ roomId, socket }) {
 
 	const handleKeypress = (e) => {
 		if ((e.key === 'Enter') | (e.key === ' ')) {
-			socket.emit('game ad submit', { roomId: roomId, word: wordTyped.toLowerCase() });
+			socket.emit('game ad submit', {
+				roomId: roomId,
+				word: wordTyped.toLowerCase(),
+			});
 			setWordTyped('');
 		}
 	};
@@ -49,12 +63,20 @@ export default function AttackDefense({ roomId, socket }) {
 	// method to restart game
 	const restart = () => {
 		setEnd(false);
-        setWordTyped('');
+		setWordTyped('');
 		socket.emit('game start', { roomId });
 	};
 
 	return (
 		<>
+			{countdown !== '' && (
+				<div className='absolute h-screen w-screen text-center bg-opacity-70 bg-black text-opacity-100 text-white '>
+					<h1 className='text-6xl mt-80 relative '>Game Starting in</h1>
+					<br />
+					<h2 className='text-3xl font-semibold p-4'>{countdown}</h2>
+					<br />
+				</div>
+			)}
 			{end && (
 				<div className='absolute h-screen w-screen text-center bg-opacity-70 bg-black text-opacity-100 text-white '>
 					<h1 className='text-6xl mt-80 relative '>Game Over</h1>
@@ -65,7 +87,9 @@ export default function AttackDefense({ roomId, socket }) {
 						<h2 className='text-3xl font-semibold p-4'>Result: You Lost</h2>
 					)}
 					<br />
-					<button onClick={restart} className='text-2xl bg-teal-600 hover:font-medium border hover:bg-teal-500  hover:border-2 rounded py-1 px-3'>
+					<button
+						onClick={restart}
+						className='text-2xl bg-teal-600 hover:font-medium border hover:bg-teal-500  hover:border-2 rounded py-1 px-3'>
 						Play Again
 					</button>
 				</div>
@@ -73,7 +97,7 @@ export default function AttackDefense({ roomId, socket }) {
 			<div className='rounded w-full sm:w-2/5 h-3/5 grid grid-cols-2 py-4 '>
 				<ul className='list border-r-2'>
 					<h1 className='font-medium text-center text-lg sm:text-2xl sm:p-4'>
-						Your Lives: <br/> {userlives}
+						Your Lives: <br /> {userlives}
 					</h1>
 					{userWords.map((word) => (
 						<AdWord word={word} />
@@ -81,7 +105,7 @@ export default function AttackDefense({ roomId, socket }) {
 				</ul>
 				<ul>
 					<h1 className='font-medium text-center text-lg sm:text-2xl sm:p-4 '>
-						Opponent Lives: <br/> {opplives}
+						Opponent Lives: <br /> {opplives}
 					</h1>
 					{oppWords.map((word) => (
 						<AdWord word={word} />
@@ -95,7 +119,7 @@ export default function AttackDefense({ roomId, socket }) {
 					className='bg-slate-100 w-96 text-xl text-neutral-700 rounded px-3 p-2 focus:outline-none'
 					value={wordTyped}
 					onChange={(e) => {
-						if (e.target.value !== ' ') setWordTyped(e.target.value);	
+						if (e.target.value !== ' ') setWordTyped(e.target.value);
 					}}
 					onKeyDown={handleKeypress}
 				/>
