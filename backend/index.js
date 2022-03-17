@@ -17,6 +17,22 @@ const io = require('socket.io')(httpServer, {
 
 const roomData = new Map();
 
+const countdown = async function (io, roomId) {
+	let count = 3;
+	return new Promise((resolve) => {
+		const interval = setInterval(() => {
+			if (count === 0) {
+				resolve('done');
+				io.to(roomId).emit('countdown', 'Start');
+				clearInterval(interval);
+			} else {
+				io.to(roomId).emit('countdown', count.toString());
+				count -= 1;
+			}
+		}, 1000);
+	});
+};
+
 app.post('/validateroom', (req, res) => {
 	res.send(Boolean(io.sockets.adapter.rooms.get(req.body)));
 });
@@ -58,7 +74,7 @@ io.on('connection', async (socket) => {
 		}
 	});
 
-	socket.on('game start', ({ roomId }) => {
+	socket.on('game start', async ({ roomId }) => {
 		//TODO single player
 		/*if (numPlayer === "single") {
     }*/
@@ -66,9 +82,10 @@ io.on('connection', async (socket) => {
 		let roomMembers = io.sockets.adapter.rooms.get(roomId);
 
 		if (roomMembers) {
-			if (roomData[roomId]['mode'] === 'elim')
+			await countdown(io, roomId);
+			if (roomData[roomId]['mode'] === 'elim') {
 				gameElim.createGame(io, roomId, Array.from(roomMembers), roomData);
-			else if (roomData[roomId]['mode'] === 'ad')
+			} else if (roomData[roomId]['mode'] === 'ad') {
 				gameAd.createGame(
 					io,
 					socket,
@@ -76,6 +93,7 @@ io.on('connection', async (socket) => {
 					Array.from(roomMembers),
 					roomData
 				);
+			}
 		}
 	});
 
