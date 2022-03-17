@@ -3,7 +3,7 @@ services:
   frontend:
     build: ./frontend/
     ports:
-      - 3000:3000
+      - 80:80
     volumes:
       - ./frontend/:/usr/app/
       - /usr/app/node_modules
