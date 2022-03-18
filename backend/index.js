@@ -37,11 +37,12 @@ app.post('/validateroom', (req, res) => {
 	res.send(Boolean(io.sockets.adapter.rooms.get(req.body)));
 });
 
+// instance of each connection
 io.on('connection', async (socket) => {
 	//DEBUGGING ONLY
-	socket.onAny((event, ...args) => {
-		console.log(socket.id + ':', event, args);
-	});
+	// socket.onAny((event, ...args) => {
+	// 	console.log(socket.id + ':', event, args);
+	// });
 
 	socket.on('room create', ({ type }, ack) => {
 		const roomId = utils.generateRoomId();
@@ -52,10 +53,10 @@ io.on('connection', async (socket) => {
 			mode: mode,
 		};
 		console.log(roomId, 'room created');
-
 		ack(roomId);
 	});
 
+	// player joins second room
 	socket.on('room join', ({ roomId }) => {
 		const roomMembers = io.sockets.adapter.rooms.get(roomId);
 		if (!roomMembers || !roomData[roomId]) {
@@ -74,13 +75,9 @@ io.on('connection', async (socket) => {
 		}
 	});
 
+	// start game in given roomId
 	socket.on('game start', async ({ roomId }) => {
-		//TODO single player
-		/*if (numPlayer === "single") {
-    }*/
-
 		let roomMembers = io.sockets.adapter.rooms.get(roomId);
-
 		if (roomMembers) {
 			await countdown(io, roomId);
 			if (roomData[roomId]['mode'] === 'elim') {
@@ -117,12 +114,13 @@ io.on('connection', async (socket) => {
 				}
 			});
 	});
-
 	socket.on('disconnect', async () => {
 		console.log(socket.id, 'disconnected');
 	});
 });
 
+
+// run server
 const port = process.env.PORT || 3003;
 console.log('listening on port ' + port);
 httpServer.listen(port);
