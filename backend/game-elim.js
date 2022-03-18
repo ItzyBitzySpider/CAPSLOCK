@@ -1,7 +1,7 @@
 const wordGen = require('./word-generation.js');
 const { io } = require('socket.io-client');
 
-function createGame(IO, roomId, members, roomData) {
+async function createGame(IO, roomId, members, roomData) {
 	if (!roomData[roomId]) {
 		console.warn('Error creating game: roomData[roomId] undefined');
 		return;
@@ -17,7 +17,12 @@ function createGame(IO, roomId, members, roomData) {
 		const url = 'http://localhost:3003';
 		const socket = io(url, { autoConnect: false });
 		socket.open();
-		socket.emit('bot join', { roomId });
+		await new Promise((resolve) => {
+			socket.emit('bot join', { roomId }, (callback) => {
+				roomData[roomId]['score'][callback['id']] = 0;
+				resolve('done');
+			});
+		});
 
 		// run bot
 		let interval = setInterval(() => {
@@ -49,8 +54,8 @@ function createListeners(io, socket, roomData) {
 		const origWordIdx = roomData[roomId]['wordlist'].indexOf(word);
 		const success = origWordIdx !== -1;
 		if (success) {
-			if (!roomData[roomId]['score'][socket.id])
-				roomData[roomId]['score'][socket.id] = 0;
+			// if (!roomData[roomId]['score'][socket.id])
+			// 	roomData[roomId]['score'][socket.id] = 0;
 			roomData[roomId]['score'][socket.id] += word.length;
 			const newWord = wordGen.generateNewWord();
 			roomData[roomId]['wordlist'].splice(origWordIdx, 1, newWord);

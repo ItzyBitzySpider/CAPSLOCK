@@ -75,7 +75,7 @@ io.on('connection', async (socket) => {
 		}
 	});
 
-	socket.on('bot join', ({ roomId }) => {
+	socket.on('bot join', ({ roomId }, callback) => {
 		socket.join(roomId);
 		console.log(
 			socket.id,
@@ -83,6 +83,9 @@ io.on('connection', async (socket) => {
 			roomId,
 			'(' + roomData[roomId]['mode'] + ')'
 		);
+		callback({
+			id: socket.id,
+		});
 	});
 
 	// start game in given roomId
@@ -91,9 +94,14 @@ io.on('connection', async (socket) => {
 		if (roomMembers) {
 			await countdown(io, roomId);
 			if (roomData[roomId]['mode'] === 'elim') {
-				gameElim.createGame(io, roomId, Array.from(roomMembers), roomData);
+				await gameElim.createGame(
+					io,
+					roomId,
+					Array.from(roomMembers),
+					roomData
+				);
 			} else if (roomData[roomId]['mode'] === 'ad') {
-				gameAd.createGame(
+				await gameAd.createGame(
 					io,
 					socket,
 					roomId,
