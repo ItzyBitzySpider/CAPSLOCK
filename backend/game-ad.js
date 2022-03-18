@@ -8,7 +8,6 @@ async function createGame(IO, socket, roomId, members, roomData) {
 	if (roomData[roomId]['player'] === 1) {
 		await new Promise((resolve) => {
 			skt.emit('bot join', { roomId }, (callback) => {
-				console.log(callback['id']);
 				members.push(callback['id']);
         resolve('done');
 			});
@@ -38,12 +37,13 @@ async function createGame(IO, socket, roomId, members, roomData) {
 		// run bot
 		let interval = setInterval(() => {
 			let word = '';
-			if (Math.round(Math.random()) === 1) {
+			if (Math.random() > 0.7) {
 				// attack
 				word = wordGen.generateNewWord();
 			} else {
 				// defend
-				let threats = roomData[roomId][socket.id]['wordlist'];
+				let threats = roomData[roomId][roomData[roomId][socket.id]['opponent']]['wordlist'];
+        console.log(JSON.stringify(threats))
 				if (threats.length !== 0)
 					word = threats[Math.floor(Math.random() * threats.length)];
 			}

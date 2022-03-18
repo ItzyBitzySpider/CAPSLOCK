@@ -34,7 +34,7 @@ async function createGame(IO, roomId, members, roomData) {
 			} catch (error) {
 				clearInterval(interval);
 			}
-		}, 1500);
+		}, 1200);
 		socket.on('game end', () => {
 			clearInterval(interval);
 			socket.disconnect();
