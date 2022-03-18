@@ -43,7 +43,6 @@ async function createGame(IO, socket, roomId, members, roomData) {
 			} else {
 				// defend
 				let threats = roomData[roomId][roomData[roomId][socket.id]['opponent']]['wordlist'];
-        console.log(JSON.stringify(threats))
 				if (threats.length !== 0)
 					word = threats[Math.floor(Math.random() * threats.length)];
 			}
@@ -56,7 +55,7 @@ async function createGame(IO, socket, roomId, members, roomData) {
 			} catch (error) {
 				clearInterval(interval);
 			}
-		}, 500);
+		}, 800);
 		// disconnect bot when game end
 		skt.on('game end', () => {
 			clearInterval(interval);
