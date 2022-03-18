@@ -17,7 +17,7 @@ const io = require('socket.io')(httpServer, {
 
 const roomData = new Map();
 
-const countdown = async function (io, roomId) {
+const countdown = function (io, roomId) {
 	let count = 3;
 	return new Promise((resolve) => {
 		const interval = setInterval(() => {
@@ -40,9 +40,9 @@ app.post('/validateroom', (req, res) => {
 // instance of each connection
 io.on('connection', async (socket) => {
 	//DEBUGGING ONLY
-	// socket.onAny((event, ...args) => {
-	// 	console.log(socket.id + ':', event, args);
-	// });
+	socket.onAny((event, ...args) => {
+		console.log(socket.id + ':', event, args);
+	});
 
 	socket.on('room create', ({ type }, ack) => {
 		const roomId = utils.generateRoomId();
@@ -73,6 +73,16 @@ io.on('connection', async (socket) => {
 				'(' + roomData[roomId]['mode'] + ')'
 			);
 		}
+	});
+
+	socket.on('bot join', ({ roomId }) => {
+		socket.join(roomId);
+		console.log(
+			socket.id,
+			'bot joined room:',
+			roomId,
+			'(' + roomData[roomId]['mode'] + ')'
+		);
 	});
 
 	// start game in given roomId
@@ -118,7 +128,6 @@ io.on('connection', async (socket) => {
 		console.log(socket.id, 'disconnected');
 	});
 });
-
 
 // run server
 const port = process.env.PORT || 3003;
