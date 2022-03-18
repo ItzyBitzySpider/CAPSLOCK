@@ -56,7 +56,7 @@ async function createGame(IO, socket, roomId, members, roomData) {
 			} catch (error) {
 				clearInterval(interval);
 			}
-		}, 800);
+		}, 500);
 		// disconnect bot when game end
 		skt.on('game end', () => {
 			clearInterval(interval);
