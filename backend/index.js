@@ -17,7 +17,7 @@ const io = require('socket.io')(httpServer, {
 
 const roomData = new Map();
 
-const countdown = async function (io, roomId) {
+const countdown = function (io, roomId) {
 	let count = 3;
 	return new Promise((resolve) => {
 		const interval = setInterval(() => {
@@ -37,6 +37,7 @@ app.post('/validateroom', (req, res) => {
 	res.send(Boolean(io.sockets.adapter.rooms.get(req.body)));
 });
 
+// instance of each connection
 io.on('connection', async (socket) => {
 	//DEBUGGING ONLY
 	socket.onAny((event, ...args) => {
@@ -52,10 +53,10 @@ io.on('connection', async (socket) => {
 			mode: mode,
 		};
 		console.log(roomId, 'room created');
-
 		ack(roomId);
 	});
 
+	// player joins second room
 	socket.on('room join', ({ roomId }) => {
 		const roomMembers = io.sockets.adapter.rooms.get(roomId);
 		if (!roomMembers || !roomData[roomId]) {
@@ -74,19 +75,33 @@ io.on('connection', async (socket) => {
 		}
 	});
 
+	socket.on('bot join', ({ roomId }, callback) => {
+		socket.join(roomId);
+		console.log(
+			socket.id,
+			'bot joined room:',
+			roomId,
+			'(' + roomData[roomId]['mode'] + ')'
+		);
+		callback({
+			id: socket.id,
+		});
+	});
+
+	// start game in given roomId
 	socket.on('game start', async ({ roomId }) => {
-		//TODO single player
-		/*if (numPlayer === "single") {
-    }*/
-
 		let roomMembers = io.sockets.adapter.rooms.get(roomId);
-
 		if (roomMembers) {
 			await countdown(io, roomId);
 			if (roomData[roomId]['mode'] === 'elim') {
-				gameElim.createGame(io, roomId, Array.from(roomMembers), roomData);
+				await gameElim.createGame(
+					io,
+					roomId,
+					Array.from(roomMembers),
+					roomData
+				);
 			} else if (roomData[roomId]['mode'] === 'ad') {
-				gameAd.createGame(
+				await gameAd.createGame(
 					io,
 					socket,
 					roomId,
@@ -117,12 +132,12 @@ io.on('connection', async (socket) => {
 				}
 			});
 	});
-
 	socket.on('disconnect', async () => {
 		console.log(socket.id, 'disconnected');
 	});
 });
 
+// run server
 const port = process.env.PORT || 3003;
 console.log('listening on port ' + port);
 httpServer.listen(port);

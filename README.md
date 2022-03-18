@@ -14,3 +14,5 @@ Built with Node.js and the socket.io Library
 - Make into PWA
 - Make PWA Install button
 - Change colors while typing
+- Ensure data sent on viewable within room
+- variable wpm for single player setting
