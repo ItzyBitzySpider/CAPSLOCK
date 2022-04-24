@@ -30,6 +30,7 @@ export default function AttackDefense({ roomId, socket }) {
 	// game countdown to start listener
 	useEffect(() => {
 		socket.on('countdown', (count) => {
+			setEnd(false);
 			setCountdown(count);
 			console.log(count);
 			if (count === 'Start') setCountdown('');

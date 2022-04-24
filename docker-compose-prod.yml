@@ -6,15 +6,9 @@ services:
       dockerfile: Dockerfile.prod
     ports:
       - 80:80
-    volumes:
-      - ./frontend/:/usr/app/
-      - /usr/app/node_modules
     depends_on:
       - backend
   backend:
     build: ./backend/
     ports:
       - 3003:3003
-    volumes:
-      - ./backend/:/usr/app/
-      - /usr/app/node_modules

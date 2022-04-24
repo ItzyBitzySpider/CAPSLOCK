@@ -1,5 +1,6 @@
 const wordGen = require('./word-generation.js');
 const { io } = require('socket.io-client');
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function createGame(IO, roomId, members, roomData) {
 	if (!roomData[roomId]) {
@@ -25,21 +26,42 @@ async function createGame(IO, roomId, members, roomData) {
 		});
 
 		// run bot
-		let interval = setInterval(() => {
-			try {
-				socket.emit('game elim submit', {
-					roomId: roomId,
-					word: roomData[roomId]['wordlist'][Math.floor(Math.random() * 9)],
-				});
-			} catch (error) {
-				clearInterval(interval);
-			}
-		}, 1200);
+		// try {
+		// 	let chosenWord =
+		// 		roomData[roomId]['wordlist'][Math.floor(Math.random() * 9)];
+		// 	let length = chosenWord.length;
+		// 	console.log(length);
+		// 	let delayTime = length * 2000;
+		// 	socket.emit('game elim submit', {
+		// 		roomId: roomId,
+		// 		word: chosenWord,
+		// 	});
+		// 	timeout = setTimeout(sendWord, delayTime);
+		// } catch (error) {
+		// 	clearTimeout(interval);
+		// }
+		let word = roomData[roomId]['wordlist'][Math.floor(Math.random() * 9)];
+		sendWordLoop(roomData, socket, roomId, word);
+
+		// let interval = setInterval(() => {}, delayTime);
 		socket.on('game end', () => {
-			clearInterval(interval);
+			// clearInterval(interval);
 			socket.disconnect();
 		});
 	}
+}
+
+function sendWordLoop(roomData, socket, roomId, word) {
+	try {
+		socket.emit('game elim submit', {
+			roomId: roomId,
+			word: word,
+		});
+		let nextWord = roomData[roomId]['wordlist'][Math.floor(Math.random() * 9)];
+		setTimeout(() => {
+			sendWordLoop(roomData, socket, roomId, nextWord);
+		}, nextWord.length * 140);
+	} catch (error) {}
 }
 
 function createListeners(io, socket, roomData) {

@@ -37,16 +37,17 @@ export default function Elimination({ roomId, socket }) {
 	// game countdown to start listener
 	useEffect(() => {
 		socket.on('countdown', (count) => {
+			setEnd(false);
 			setCountdown(count);
 			console.log(count);
-			if(count === 'Start') setCountdown ('');
+			if (count === 'Start') setCountdown('');
 		});
 	}, []);
 
 	// game start signal listener
 	useEffect(() => {
 		socket.on('game elim start', (startWordlist) => {
-			console.log('started')
+			console.log('started');
 			setWordTyped('');
 			setUserPoints(0);
 			setOppPoints(0);
