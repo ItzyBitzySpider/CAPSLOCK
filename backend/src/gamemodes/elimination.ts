@@ -1,5 +1,6 @@
-const wordGen = require('./word-generation.js');
-const { io } = require('socket.io-client');
+import { generateNewWord, generateWordlist } from '../utils/word-generation';
+import { io } from 'socket.io-client';
+
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function createGame(IO, roomId, members, roomData) {
@@ -7,7 +8,7 @@ async function createGame(IO, roomId, members, roomData) {
 		console.warn('Error creating game: roomData[roomId] undefined');
 		return;
 	}
-	roomData[roomId]['wordlist'] = wordGen.generateWordlist();
+	roomData[roomId]['wordlist'] = generateWordlist();
 	roomData[roomId]['score'] = {};
 	members.forEach((m) => (roomData[roomId]['score'][m] = 0));
 
@@ -79,7 +80,7 @@ function createListeners(io, socket, roomData) {
 			// if (!roomData[roomId]['score'][socket.id])
 			// 	roomData[roomId]['score'][socket.id] = 0;
 			roomData[roomId]['score'][socket.id] += word.length;
-			const newWord = wordGen.generateNewWord();
+			const newWord = generateNewWord();
 			roomData[roomId]['wordlist'].splice(origWordIdx, 1, newWord);
 			io.to(roomId).emit('game elim update', {
 				user: socket.id,
@@ -114,4 +115,4 @@ function startTimer(io, roomId, roomData) {
 	}, 500);
 }
 
-module.exports = { createGame, createListeners };
+export { createGame, createListeners };

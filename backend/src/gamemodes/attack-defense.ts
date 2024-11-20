@@ -1,4 +1,4 @@
-const wordGen = require('./word-generation.js');
+const wordGen = require('../utils/word-generation.js');
 const { io } = require('socket.io-client');
 
 async function createGame(IO, socket, roomId, members, roomData) {
@@ -147,4 +147,4 @@ function closeGame(io, socket, roomId, roomData, opponent) {
 	console.log(roomId, 'game ended');
 }
 
-module.exports = { createGame, createListeners };
+export { createGame, createListeners };

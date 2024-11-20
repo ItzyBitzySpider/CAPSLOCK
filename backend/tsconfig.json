@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "outDir": "./built",
+        "allowJs": true,
+        "target": "ES5",
+        "lib": ["esnext"],
+        "esModuleInterop": true
+    },
+    "include": ["./src/**/*"],
+    
+}
