@@ -1,150 +1,151 @@
-const wordGen = require('../utils/word-generation.js');
-const { io } = require('socket.io-client');
+import { Server, Socket } from "socket.io";
+import { io } from "socket.io-client";
+import { RoomManager } from "../rooms/RoomManager";
+import { dictionaryCheck, generateNewWord } from "../utils/word-generation";
+import { AdRoom } from "../rooms/AdRoom";
+import { Player } from "../rooms/Player";
 
-async function createGame(IO, socket, roomId, members, roomData) {
-	const url = 'http://localhost:3003';
-	const skt = io(url, { autoConnect: false });
-	skt.open();
-	if (roomData[roomId]['player'] === 1) {
-		await new Promise((resolve) => {
-			skt.emit('bot join', { roomId }, (callback) => {
-				members.push(callback['id']);
-        resolve('done');
-			});
-		});
-	} else {
-		skt.disconnect();
-	}
-	for (var i = 0; i < members.length; i++) {
-		roomData[roomId][members[i]] = {};
-		roomData[roomId][members[i]]['wordlist'] = [];
-		roomData[roomId][members[i]]['timers'] = new Map();
-		roomData[roomId][members[i]]['lives'] = 3;
-		roomData[roomId][members[i]]['opponent'] =
-			i == members.length - 1 ? members[0] : members[i + 1];
-	}
-	roomData[roomId]['used'] = new Set();
-	IO.to(roomId).emit('game ad start');
-	updateGameState(
-		IO,
-		socket,
-		roomId,
-		roomData,
-		roomData[roomId][socket.id]['opponent']
-	);
+async function createGame(
+    IO: Server,
+    socket: Socket,
+    roomId: string,
+    members: string[]
+) {
+    const url = "http://localhost:3003";
+    const skt = io(url, { autoConnect: false });
+    skt.open();
+    if (members.length === 1) {
+        await new Promise((resolve) => {
+            skt.emit("bot join", { roomId }, (callback) => {
+                members.push(callback["id"]);
+                resolve("done");
+            });
+        });
+    } else {
+        skt.close();
+    }
 
-	if (roomData[roomId]['player'] === 1) {
-		// run bot
-		let interval = setInterval(() => {
-			let word = '';
-			if (Math.random() > 0.7) {
-				// attack
-				word = wordGen.generateNewWord();
-			} else {
-				// defend
-				let threats = roomData[roomId][roomData[roomId][socket.id]['opponent']]['wordlist'];
-				if (threats.length !== 0)
-					word = threats[Math.floor(Math.random() * threats.length)];
-			}
-			// submit word
-			try {
-				skt.emit('game ad submit', {
-					roomId: roomId,
-					word: word,
-				});
-			} catch (error) {
-				clearInterval(interval);
-			}
-		}, 800);
-		// disconnect bot when game end
-		skt.on('game end', () => {
-			clearInterval(interval);
-			skt.disconnect();
-		});
-	}
+    RoomManager.createAdRoom(roomId, members);
+
+    IO.to(roomId).emit("game ad start");
+    const room = RoomManager.getAdRoom(roomId);
+    updateGameState(
+        IO,
+        socket,
+        room,
+        room.players[room.players[socket.id].opponentId]
+    );
+
+    if (skt.connected) {
+        // run bot
+        let interval = setInterval(() => {
+            let word = "";
+            if (Math.random() > 0.7) {
+                // attack
+                word = generateNewWord();
+            } else {
+                // defend
+                let threats =
+                    RoomManager.getAdRoom(roomId).players[skt.id].wordlist;
+                if (threats.length !== 0)
+                    word = threats[Math.floor(Math.random() * threats.length)];
+            }
+            // submit word
+            try {
+                skt.emit("game ad submit", {
+                    roomId: roomId,
+                    word: word,
+                });
+            } catch (error) {
+                clearInterval(interval);
+            }
+        }, 800);
+        // disconnect bot when game end
+        skt.on("game end", () => {
+            clearInterval(interval);
+            skt.disconnect();
+        });
+    }
 }
 
-function createListeners(io, socket, roomData) {
-	socket.on('game ad submit', ({ roomId, word }) => {
-		if (!roomData[roomId] || !roomData[roomId][socket.id]) {
-			console.warn(
-				'Error updating game: roomData[roomId][socket.id] undefined'
-			);
-			return;
-		}
-		console.log(socket.id, 'submitted', word);
-		const opponent = roomData[roomId][socket.id]['opponent'];
-		const idx = roomData[roomId][socket.id]['wordlist'].indexOf(word);
+function createListeners(io, socket: Socket) {
+    socket.on("game ad submit", ({ roomId, word }) => {
+        const room = RoomManager.getAdRoom(roomId);
+        if (!room) {
+            console.error(`Error updating game: ${room.id} undefined`);
+            return;
+        }
+        console.log(socket.id, "submitted", word);
+        const opponentId = room.players[socket.id].opponentId;
+        const opponent = room.players[opponentId];
+        const idx = opponent.wordlist.indexOf(word);
 
-		if (idx === -1) {
-			//Attack (Allowed words: len > 3, no repeats, English (in my dictionary))
-			if (
-				word.length >= 3 &&
-				!roomData[roomId]['used'].has(word) &&
-				wordGen.dictionaryCheck(word)
-			) {
-				roomData[roomId]['used'].add(word);
-				roomData[roomId][opponent]['wordlist'].push(word);
-				const oppIdx = roomData[roomId][opponent]['wordlist'].indexOf(word);
-				const timerId = setTimeout(() => {
-					//Timer ran out: Reduce 1 life, remove word from list
-					roomData[roomId][opponent]['lives']--;
-					roomData[roomId][opponent]['wordlist'].splice(oppIdx, 1);
-					roomData[roomId][opponent]['timers'].delete(word);
-					updateGameState(io, socket, roomId, roomData, opponent);
-					console.log(opponent, 'timed out:', word);
+        if (idx === -1) {
+            //Attack (Allowed words: len > 3, no repeats, English (in my dictionary))
+            if (
+                word.length >= 3 &&
+                !room["used"].has(word) &&
+                dictionaryCheck(word)
+            ) {
+                room["used"].add(word);
+                opponent.wordlist.push(word);
+                const oppIdx = opponent["wordlist"].indexOf(word);
+                const timerId = setTimeout(() => {
+                    //Timer ran out: Reduce 1 life, remove word from list
+                    opponent.lives--;
+                    opponent.wordlist.splice(oppIdx, 1);
+                    opponent.timers.delete(word);
+                    updateGameState(io, socket, room, opponent);
+                    console.log(opponent, "timed out:", word);
 
-					//No more lives; Game end
-					if (
-						!roomData[roomId][socket.id]['lives'] ||
-						!roomData[roomId][opponent]['lives']
-					) {
-						closeGame(io, socket, roomId, roomData, opponent);
-					}
-				}, 5000);
-				roomData[roomId][opponent]['timers'].set(word, timerId);
-				console.log(socket.id, 'attack:', word);
-			}
-		} else {
-			//Defense (Remove entered word from list)
-			roomData[roomId][socket.id]['wordlist'].splice(idx, 1);
-			clearTimeout(roomData[roomId][socket.id]['timers'].get(word));
-			console.log(socket.id, 'defend:', word);
-		}
-		updateGameState(io, socket, roomId, roomData, opponent);
-	});
+                    //No more lives; Game end
+                    if (!room.players[socket.id].lives || !opponent.lives) {
+                        closeGame(io, socket, room, opponent);
+                    }
+                }, 5000);
+                opponent.timers.set(word, timerId);
+                console.log(socket.id, "attack:", word);
+            }
+        } else {
+            //Defense (Remove entered word from list)
+            room[socket.id]["wordlist"].splice(idx, 1);
+            clearTimeout(room[socket.id]["timers"].get(word));
+            console.log(socket.id, "defend:", word);
+        }
+        updateGameState(io, socket, room, opponent);
+    });
 }
 
-function updateGameState(io, socket, roomId, roomData, opponent) {
-	io.to(roomId).emit('game ad update', {
-		[socket.id]: {
-			wordlist: roomData[roomId][socket.id]['wordlist'],
-			lives: roomData[roomId][socket.id]['lives'],
-		},
-		[opponent]: {
-			wordlist: roomData[roomId][opponent]['wordlist'],
-			lives: roomData[roomId][opponent]['lives'],
-		},
-	});
+function updateGameState(io, socket: Socket, room: AdRoom, opponent: Player) {
+    io.to(room.id).emit("game ad update", {
+        [socket.id]: {
+            wordlist: room.players[socket.id].wordlist,
+            lives: room.players[socket.id].lives,
+        },
+        [opponent.id]: {
+            wordlist: room.players[opponent.id].wordlist,
+            lives: room.players[opponent.id].lives,
+        },
+    });
 }
 
-function closeGame(io, socket, roomId, roomData, opponent) {
-	io.to(roomId).emit('game end');
+function closeGame(io, socket: Socket, room: AdRoom, opponent: Player) {
+    io.to(room.id).emit("game end");
 
-	roomData[roomId][socket.id]['timers'].forEach((v, k) => {
-		clearTimeout(v);
-		roomData[roomId][socket.id]['timers'].delete(k);
-	});
-	roomData[roomId][opponent]['timers'].forEach((v, k) => {
-		clearTimeout(v);
-		roomData[roomId][opponent]['timers'].delete(k);
-	});
+    room.players[socket.id].timers.forEach((v, k) => {
+        clearTimeout(v);
+        room.players[socket.id].timers.delete(k);
+    });
+    room.players[opponent.id].timers.forEach((v, k) => {
+        clearTimeout(v);
+        room.players[opponent.id].timers.delete(k);
+    });
 
-	delete roomData[roomId][socket.id];
-	delete roomData[roomId][opponent];
-	delete roomData[roomId]['used'];
+    delete room.players[socket.id];
+    delete room.players[opponent.id];
+    delete room.used;
 
-	console.log(roomId, 'game ended');
+    console.log(room.id, "game ended");
 }
 
 export { createGame, createListeners };

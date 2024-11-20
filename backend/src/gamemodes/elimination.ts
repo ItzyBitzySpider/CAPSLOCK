@@ -1,114 +1,103 @@
-import { generateNewWord, generateWordlist } from '../utils/word-generation';
+import { Server, Socket } from 'socket.io';
+import { generateNewWord } from '../utils/word-generation';
 import { io } from 'socket.io-client';
+import { RoomManager } from '../rooms/RoomManager';
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-async function createGame(IO, roomId, members, roomData) {
-	if (!roomData[roomId]) {
-		console.warn('Error creating game: roomData[roomId] undefined');
-		return;
-	}
-	roomData[roomId]['wordlist'] = generateWordlist();
-	roomData[roomId]['score'] = {};
-	members.forEach((m) => (roomData[roomId]['score'][m] = 0));
-
-	IO.to(roomId).emit('game elim start', roomData[roomId]['wordlist']);
-	startTimer(IO, roomId, roomData);
-	console.log(roomId, 'game started');
-	if (roomData[roomId]['player'] === 1) {
-		const url = 'http://localhost:3003';
-		const socket = io(url, { autoConnect: false });
-		socket.open();
+async function createGame(IO: Server, roomId: string, members: string[]) {
+	const url = 'http://localhost:3003'; // hacky way of joining the room
+	const skt = io(url, { autoConnect: false });
+	skt.open();
+	if (members.length === 1) {
 		await new Promise((resolve) => {
-			socket.emit('bot join', { roomId }, (callback) => {
-				roomData[roomId]['score'][callback['id']] = 0;
+			skt.emit('bot join', { roomId }, (callback) => {
+				members.push(callback['id']);
 				resolve('done');
 			});
 		});
+	} else {
+		skt.close();
+	}
+	
+	RoomManager.createElimRoom(roomId, members);
+	const room = RoomManager.getElimRoom(roomId)
+	console.log(room)
 
-		// run bot
-		// try {
-		// 	let chosenWord =
-		// 		roomData[roomId]['wordlist'][Math.floor(Math.random() * 9)];
-		// 	let length = chosenWord.length;
-		// 	console.log(length);
-		// 	let delayTime = length * 2000;
-		// 	socket.emit('game elim submit', {
-		// 		roomId: roomId,
-		// 		word: chosenWord,
-		// 	});
-		// 	timeout = setTimeout(sendWord, delayTime);
-		// } catch (error) {
-		// 	clearTimeout(interval);
-		// }
-		let word = roomData[roomId]['wordlist'][Math.floor(Math.random() * 9)];
-		sendWordLoop(roomData, socket, roomId, word);
-
-		// let interval = setInterval(() => {}, delayTime);
-		socket.on('game end', () => {
-			// clearInterval(interval);
-			socket.disconnect();
+	IO.to(roomId).emit('game elim start', room.wordlist);
+	
+	startTimer(IO, roomId);
+	
+	console.log(roomId, 'game started');
+	if (skt.connected) {
+		let word = RoomManager.getElimRoom(roomId).wordlist[Math.floor(Math.random() * 9)];
+		sendWordLoop(skt, roomId, word);
+		skt.on('game end', () => {
+			skt.disconnect();
 		});
 	}
+		
+	
 }
 
-function sendWordLoop(roomData, socket, roomId, word) {
+function sendWordLoop(socket, roomId, word) {
 	try {
-		socket.emit('game elim submit', {
-			roomId: roomId,
-			word: word,
+		let currentWord = word;
+		const intervalId = setInterval(() => {
+			socket.emit('game elim submit', {
+				roomId: roomId,
+				word: currentWord,
+			});
+			currentWord = RoomManager.getElimRoom(roomId).wordlist[Math.floor(Math.random() * 9)];
+		}, currentWord.length * 140);
+
+		socket.on('game end', () => {
+			clearInterval(intervalId);
 		});
-		let nextWord = roomData[roomId]['wordlist'][Math.floor(Math.random() * 9)];
-		setTimeout(() => {
-			sendWordLoop(roomData, socket, roomId, nextWord);
-		}, nextWord.length * 140);
 	} catch (error) {}
 }
 
-function createListeners(io, socket, roomData) {
+function createListeners(io, socket: Socket) {
 	socket.on('game elim submit', ({ roomId, word }) => {
-		if (!roomData[roomId] || !roomData[roomId]['wordlist']) {
-			console.warn('Error updating game: roomData[roomId][wordlist] undefined');
+		const room = RoomManager.getElimRoom(roomId);
+		if (!room || !room.wordlist) {
+			console.error('Error updating game: roomData[roomId][wordlist] undefined');
 			return;
 		}
 
 		console.log(socket.id, 'submitted', word);
 
-		const origWordIdx = roomData[roomId]['wordlist'].indexOf(word);
+		const origWordIdx = room.wordlist.indexOf(word);
 		const success = origWordIdx !== -1;
 		if (success) {
-			// if (!roomData[roomId]['score'][socket.id])
-			// 	roomData[roomId]['score'][socket.id] = 0;
-			roomData[roomId]['score'][socket.id] += word.length;
+			RoomManager.getElimRoom(roomId).score[socket.id] += word.length;
 			const newWord = generateNewWord();
-			roomData[roomId]['wordlist'].splice(origWordIdx, 1, newWord);
+			RoomManager.getElimRoom(roomId).wordlist.splice(origWordIdx, 1, newWord);
 			io.to(roomId).emit('game elim update', {
 				user: socket.id,
-				wordlist: roomData[roomId]['wordlist'],
+				wordlist: RoomManager.getElimRoom(roomId).wordlist,
 				newWord: newWord,
-				scores: roomData[roomId]['score'],
+				scores: RoomManager.getElimRoom(roomId).score,
 			});
 		}
 	});
 }
 
-function startTimer(io, roomId, roomData) {
-	if (!roomData[roomId]) {
-		console.warn('Error setting timer: roomData[roomId] undefined');
+function startTimer(io, roomId) {
+	if (!RoomManager.roomExists(roomId)) {
+		console.warn(`Error setting timer: ${roomId} undefined`);
 		return;
 	}
-	roomData[roomId]['timeEnd'] = Date.now() + 60000;
+
+	const endTime = RoomManager.getElimRoom(roomId).timeEnd;
 	let intId = setInterval(() => {
-		let timeLeft = roomData[roomId]['timeEnd'] - Date.now();
+		let timeLeft = endTime - Date.now();
 		if (timeLeft < 0) timeLeft = 0;
 		io.to(roomId).emit('time', Math.floor(timeLeft / 1000));
 		if (timeLeft <= 0) {
 			clearInterval(intId);
 			io.to(roomId).emit('game end');
 
-			//Sorry I used an object instead of a map
-			delete roomData[roomId]['wordlist'];
-			delete roomData[roomId]['score'];
+			delete RoomManager.getElimRoom(roomId).wordlist;
+			delete RoomManager.getElimRoom(roomId).score;
 
 			console.log(roomId, 'game ended');
 		}

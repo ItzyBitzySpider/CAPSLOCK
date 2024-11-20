@@ -9,15 +9,16 @@ function readWord(fd, idx) {
     return readContents[1];
 }
 
-function generateWordlist() {
+function generateWordlist(): string[] {
     let wl = [];
     const filePath = path.resolve(__dirname, "../../data/wordlist.txt");
     const fd = openSync(filePath, "r");
     const stats = fstatSync(fd);
-    for (let i = 0; i < 9; i++)
+    for (let i = 0; i < 9; i++) {
         wl.push(
             readWord(fd, Math.floor(Math.random() * (stats.size - chunkSize)))
         );
+    }
     return wl;
 }
 
@@ -31,7 +32,10 @@ function generateNewWord() {
 //Range finder binary search
 //Only read chunks of dictionary file at a time; Does not read file into memory
 function dictionaryCheck(x) {
-    const filePath = path.resolve(__dirname, "../../data/dictionary_sorted.txt");
+    const filePath = path.resolve(
+        __dirname,
+        "../../data/dictionary_sorted.txt"
+    );
     const fd = openSync(filePath, "r");
     const stats = fstatSync(fd);
     let lower = 0,

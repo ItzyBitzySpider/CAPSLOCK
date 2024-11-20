@@ -8,25 +8,21 @@ import {
     createListeners as createAdListeners,
 } from "./gamemodes/attack-defense";
 
-import express from "express";
-import { bodyParser } from "body-parser";
-import { createServer } from "http";
-import "socket.io";
-import { Server } from "socket.io";
+import express, { Request, Response } from "express";
+import { createServer, Server as HttpServer } from "http";
+import { Server, Socket } from "socket.io";
+import { RoomManager } from "./rooms/RoomManager";
 
 const app = express();
-// app.use(bodyParser.json());
 
-const httpServer = createServer(app);
-const io = new Server(httpServer, {
+const httpServer: HttpServer = createServer(app);
+const io: Server = new Server(httpServer, {
     cors: {
         origin: "*", //TODO: Change to deployment platform
     },
 });
 
-const roomData = new Map();
-
-const countdown = function (io, roomId) {
+const countdown = function (io: Server, roomId: string): Promise<string> {
     let count = 3;
     return new Promise((resolve) => {
         const interval = setInterval(() => {
@@ -42,111 +38,111 @@ const countdown = function (io, roomId) {
     });
 };
 
-app.post("/validateroom", (req, res) => {
+app.post("/validateroom", (req: Request, res: Response) => {
     res.send(Boolean(io.sockets.adapter.rooms.get(req.body)));
 });
 
-// instance of each connection
-io.on("connection", async (socket) => {
-    //DEBUGGING ONLY
-    socket.onAny((event, ...args) => {
+io.on("connection", async (socket: Socket) => {
+    createElimListeners(io, socket);
+    createAdListeners(io, socket);
+
+    socket.onAny((event: string, ...args: any[]) => {
         console.log(socket.id + ":", event, args);
     });
 
-    socket.on("room create", ({ type }, ack) => {
-        const roomId = generateRoomId();
-        socket.join(roomId);
-        const [numPlayer, mode] = type.split(" ");
-        roomData[roomId] = {
-            player: numPlayer === "single" ? 1 : 2,
-            mode: mode,
-        };
-        console.log(roomId, "room created");
-        ack(roomId);
-    });
+    socket.on(
+        "room create",
+        ({ type }: { type: string }, ack: (roomId: string) => void) => {
+            const roomId: string = generateRoomId();
+            console.log(roomId);
+            socket.join(roomId);
+            console.log(io.sockets.adapter.rooms.get(roomId));
+            const [numPlayer, mode] = type.split(" ");
+            RoomManager.createWaitingRoom(
+                roomId,
+                socket.id,
+                mode,
+                numPlayer === "single" ? 1 : 2
+            );
+            console.log(roomId, "room created");
+            ack(roomId);
+        }
+    );
 
-    // player joins second room
-    socket.on("room join", ({ roomId }) => {
+    socket.on("room join", ({ roomId }: { roomId: string }) => {
         const roomMembers = io.sockets.adapter.rooms.get(roomId);
-        if (!roomMembers || !roomData[roomId]) {
+        console.log(roomMembers);
+        if (!roomMembers || !RoomManager.roomExists(roomId)) {
             socket.emit("room does not exist");
-        } else if (roomMembers.size === 2 || roomData[roomId]["player"] === 1) {
+        } else if (
+            RoomManager.getRoom(roomId).maxPlayers ===
+            RoomManager.getRoom(roomId).members.length
+        ) {
             socket.emit("room full");
         } else {
             socket.join(roomId);
-            io.to(roomId).emit("room update", roomData[roomId]["mode"]);
+            io.to(roomId).emit("room update", RoomManager.getRoom(roomId)!.mode);
             console.log(
                 socket.id,
                 "joined room:",
                 roomId,
-                "(" + roomData[roomId]["mode"] + ")"
+                "(" + RoomManager.getRoom(roomId).mode + ")"
             );
         }
     });
 
-    socket.on("bot join", ({ roomId }, callback) => {
-        socket.join(roomId);
-        console.log(
-            socket.id,
-            "bot joined room:",
-            roomId,
-            "(" + roomData[roomId]["mode"] + ")"
-        );
-        callback({
-            id: socket.id,
-        });
-    });
+    socket.on(
+        "bot join",
+        (
+            { roomId }: { roomId: string },
+            callback: (data: { id: string }) => void
+        ) => {
+            socket.join(roomId);
+            console.log(
+                socket.id,
+                "bot joined room:",
+                roomId,
+                "(" + RoomManager.getRoom(roomId)!.mode + ")"
+            );
+            callback({
+                id: socket.id,
+            });
+        }
+    );
 
-    // start game in given roomId
-    socket.on("game start", async ({ roomId }) => {
-        let roomMembers = io.sockets.adapter.rooms.get(roomId);
+    socket.on("game start", async ({ roomId }: { roomId: string }) => {
+        const roomMembers = io.sockets.adapter.rooms.get(roomId);
+        console.log(roomMembers, roomId);
         if (roomMembers) {
             await countdown(io, roomId);
-            if (roomData[roomId]["mode"] === "elim") {
-                await createElimGame(
-                    io,
-                    roomId,
-                    Array.from(roomMembers),
-                    roomData
-                );
-            } else if (roomData[roomId]["mode"] === "ad") {
-                await createAdGame(
-                    io,
-                    socket,
-                    roomId,
-                    Array.from(roomMembers),
-                    roomData
-                );
+            if (RoomManager.getRoom(roomId).mode === "elim") {
+                await createElimGame(io, roomId, Array.from(roomMembers));
+            } else if (RoomManager.getRoom(roomId).mode === "ad") {
+                await createAdGame(io, socket, roomId, Array.from(roomMembers));
             }
+        } else {
+            console.log("why");
         }
     });
 
-    createElimListeners(io, socket, roomData);
-    createAdListeners(io, socket, roomData);
-
-    // notify users upon disconnection
     socket.on("disconnecting", () => {
-        if (socket.rooms)
+        if (socket.rooms) {
             socket.rooms.forEach((roomId) => {
                 socket.leave(roomId);
                 const roomMembers = io.sockets.adapter.rooms.get(roomId);
                 if (!roomMembers) {
-                    //Room no longer exists
-                    roomData.delete(roomId); //Delete from roomData map if no one left in room
+                    RoomManager.deleteRoom(roomId);
                     console.log(roomId, "deleted");
-                } else {
-                    //TODO: Expansion to more than 2 players
-                    //Room still exists
-                    //io.to(roomId).emit("room update", Array.from(roomMembers)); //Inform other user that user in room left
                 }
             });
+        }
     });
+
     socket.on("disconnect", async () => {
         console.log(socket.id, "disconnected");
     });
 });
 
-// run server
-const port = process.env.PORT || 3003;
+const port: number | string = process.env.PORT || 3003;
 console.log("listening on port " + port);
 httpServer.listen(port);
