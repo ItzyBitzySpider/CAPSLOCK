@@ -65,15 +65,14 @@ async function createGame(
 
 function createListeners(io, socket: Socket) {
     socket.on("game ad submit", ({ roomId, word }) => {
-        const room = RoomManager.getAdRoom(roomId);
-        if (!room) {
-            console.error(`Error updating game: ${room.id} undefined`);
+        if (!RoomManager.roomExists(roomId)) {
+            console.warn("Room does not exist");
             return;
         }
+        const room = RoomManager.getAdRoom(roomId);
         console.log(socket.id, "submitted", word);
-        const opponentId = room.players[socket.id].opponentId;
-        const opponent = room.players[opponentId];
-        const idx = opponent.wordlist.indexOf(word);
+        const opponent = room.players[room.players[socket.id].opponentId];
+        const idx = room.players[socket.id].wordlist.indexOf(word);
 
         if (idx === -1) {
             //Attack (Allowed words: len > 3, no repeats, English (in my dictionary))
@@ -84,7 +83,7 @@ function createListeners(io, socket: Socket) {
             ) {
                 room["used"].add(word);
                 opponent.wordlist.push(word);
-                const oppIdx = opponent["wordlist"].indexOf(word);
+                const oppIdx = opponent.wordlist.indexOf(word);
                 const timerId = setTimeout(() => {
                     //Timer ran out: Reduce 1 life, remove word from list
                     opponent.lives--;
@@ -103,8 +102,10 @@ function createListeners(io, socket: Socket) {
             }
         } else {
             //Defense (Remove entered word from list)
-            room[socket.id]["wordlist"].splice(idx, 1);
-            clearTimeout(room[socket.id]["timers"].get(word));
+            RoomManager.getAdRoom(roomId).players[socket.id].wordlist.splice(idx, 1);
+            clearTimeout(
+                RoomManager.getAdRoom(roomId).players[socket.id].timers.get(word)
+            );
             console.log(socket.id, "defend:", word);
         }
         updateGameState(io, room);

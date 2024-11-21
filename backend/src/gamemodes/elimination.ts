@@ -57,9 +57,13 @@ function sendWordLoop(socket, roomId, word) {
 
 function createListeners(io, socket: Socket) {
 	socket.on('game elim submit', ({ roomId, word }) => {
+        if (!RoomManager.roomExists(roomId)) {
+            console.warn("Room does not exist");
+            return;
+        }
 		const room = RoomManager.getElimRoom(roomId);
-		if (!room || !room.wordlist) {
-			console.error('Error updating game: roomData[roomId][wordlist] undefined');
+		if (!room.wordlist) {
+			console.error('Error updating game: wordlist undefined');
 			return;
 		}
 
