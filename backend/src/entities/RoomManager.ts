@@ -51,7 +51,6 @@ export class RoomManager {
 
     static getElimRoom(roomId: string) {
         const room = this.rooms.get(roomId);
-        console.log('getroom', this.rooms.get(roomId))
         if (room instanceof ElimRoom) {
             return room;
         } else {
