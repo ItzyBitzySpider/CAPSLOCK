@@ -1,7 +1,7 @@
-import { AdRoom } from "./AdRoom";
-import { ElimRoom } from "./ElimRoom";
-import { Room } from "./Room";
-import { WaitingRoom } from "./WaitingRoom";
+import { AdRoom } from "./rooms/AdRoom";
+import { ElimRoom } from "./rooms/ElimRoom";
+import { Room } from "./rooms/Room";
+import { WaitingRoom } from "./rooms/WaitingRoom";
 
 export class RoomManager {
     static rooms = new Map<string, Room>();

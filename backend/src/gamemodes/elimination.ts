@@ -1,7 +1,7 @@
 import { Server, Socket } from 'socket.io';
 import { generateNewWord } from '../utils/word-generation';
 import { io } from 'socket.io-client';
-import { RoomManager } from '../rooms/RoomManager';
+import { RoomManager } from '../entities/RoomManager';
 
 async function createGame(IO: Server, roomId: string, members: string[]) {
 	const url = 'http://localhost:3003'; // hacky way of joining the room

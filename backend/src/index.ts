@@ -11,7 +11,7 @@ import {
 import express, { Request, Response } from "express";
 import { createServer, Server as HttpServer } from "http";
 import { Server, Socket } from "socket.io";
-import { RoomManager } from "./rooms/RoomManager";
+import { RoomManager } from "./entities/RoomManager";
 
 const app = express();
 

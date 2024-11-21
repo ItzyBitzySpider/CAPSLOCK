@@ -1,9 +1,9 @@
 import { Server, Socket } from "socket.io";
 import { io } from "socket.io-client";
-import { RoomManager } from "../rooms/RoomManager";
+import { RoomManager } from "../entities/RoomManager";
 import { dictionaryCheck, generateNewWord } from "../utils/word-generation";
-import { AdRoom } from "../rooms/AdRoom";
-import { Player } from "../rooms/Player";
+import { AdRoom } from "../entities/rooms/AdRoom";
+import { Player } from "../entities/Player";
 
 async function createGame(
     IO: Server,

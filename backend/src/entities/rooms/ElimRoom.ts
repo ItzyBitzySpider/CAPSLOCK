@@ -1,4 +1,4 @@
-import { generateWordlist } from "../utils/word-generation";
+import { generateWordlist } from "../../utils/word-generation";
 import { Room } from "./Room";
 
 export class ElimRoom extends Room {

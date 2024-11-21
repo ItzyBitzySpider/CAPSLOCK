@@ -1,5 +1,5 @@
 import { Room } from "./Room";
-import { Player } from "./Player";
+import { Player } from "../Player";
 
 export class AdRoom extends Room {
     used: Set<string>;
