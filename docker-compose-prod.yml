@@ -10,5 +10,6 @@ services:
       - backend
   backend:
     build: ./backend/
+    restart: always
     ports:
       - 3003:3003

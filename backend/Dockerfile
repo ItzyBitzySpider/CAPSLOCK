@@ -2,15 +2,14 @@ FROM node:latest
 
 WORKDIR /usr/app
 
-COPY package.json .
-COPY yarn.lock .
+COPY package.json yarn.lock ./
 
+# RUN yarn install
 RUN yarn install
-
-RUN mkdir -p node_modules/.cache && chmod -R 777 node_modules/.cache
 
 COPY . .
 
-EXPOSE 3003
+# RUN mkdir -p node_modules/.cache && chmod -R 777 node_modules/.cache
+RUN yarn build
 
-CMD ["npm", "start"]
+CMD ["yarn", "start"]
