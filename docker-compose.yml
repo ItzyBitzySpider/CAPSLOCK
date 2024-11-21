@@ -11,8 +11,6 @@ services:
       - backend
   backend:
     build: ./backend/
-    volumes:
-      - ./backend/:/usr/app/
     ports:
       - 3003:3003
     volumes:

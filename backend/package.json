@@ -9,11 +9,16 @@
     "socket.io-client": "^4.4.1"
   },
   "devDependencies": {
-    "nodemon": "^2.0.15"
+    "nodemon": "^2.0.15",
+    "@types/socket.io": "^3.0.2",
+    "@types/socket.io-client": "^3.0.0",
+    "typescript": "^5.6.3"
   },
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node built/index.js",
+    "build": "tsc",
+    "dev": "tsc && nodemon built/index.js",
     "test": "nodemon index.js"
   }
 }
