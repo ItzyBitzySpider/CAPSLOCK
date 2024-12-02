@@ -2,15 +2,16 @@ import { Server, Socket } from 'socket.io';
 import { generateNewWord } from '../utils/word-generation';
 import { io } from 'socket.io-client';
 import { RoomManager } from '../entities/RoomManager';
+import { Room } from '../entities/rooms/Room';
 
-async function createGame(IO: Server, roomId: string, members: string[]) {
+async function createGame(IO: Server, roomId: string) {
 	const url = 'http://localhost:3003'; // hacky way of joining the room
 	const skt = io(url, { autoConnect: false });
 	skt.open();
-	if (members.length === 1) {
+	if (RoomManager.getRoom(roomId).maxPlayers == 1) {
 		await new Promise((resolve) => {
 			skt.emit('bot join', { roomId }, (callback) => {
-				members.push(callback['id']);
+				RoomManager.joinRoom(roomId, callback['id']);
 				resolve('done');
 			});
 		});
@@ -18,9 +19,8 @@ async function createGame(IO: Server, roomId: string, members: string[]) {
 		skt.close();
 	}
 	
-	RoomManager.createElimRoom(roomId, members);
+	RoomManager.createElimRoom(roomId);
 	const room = RoomManager.getElimRoom(roomId)
-	console.log(room)
 
 	IO.to(roomId).emit('game elim start', room.wordlist);
 	
@@ -35,7 +35,6 @@ async function createGame(IO: Server, roomId: string, members: string[]) {
 		});
 	}
 		
-	
 }
 
 function sendWordLoop(socket, roomId, word) {
@@ -100,9 +99,12 @@ function startTimer(io, roomId) {
 			clearInterval(intId);
 			io.to(roomId).emit('game end');
 
-			delete RoomManager.getElimRoom(roomId).wordlist;
-			delete RoomManager.getElimRoom(roomId).score;
-
+			if (RoomManager.getElimRoom(roomId)) {
+				delete RoomManager.getElimRoom(roomId).wordlist;
+				delete RoomManager.getElimRoom(roomId).score;
+			} else {
+				console.error('Error ending game: room undefined');
+			}
 			console.log(roomId, 'game ended');
 		}
 	}, 500);

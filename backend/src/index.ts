@@ -47,7 +47,7 @@ io.on("connection", async (socket: Socket) => {
     createAdListeners(io, socket);
 
     socket.onAny((event: string, ...args: any[]) => {
-        console.log(socket.id + ":", event, args);
+        // console.log(socket.id + ":", event, args);
     });
 
     socket.on(
@@ -116,12 +116,13 @@ io.on("connection", async (socket: Socket) => {
         if (roomMembers) {
             await countdown(io, roomId);
             if (RoomManager.getRoom(roomId).mode === "elim") {
-                await createElimGame(io, roomId, Array.from(roomMembers));
+                await createElimGame(io, roomId);
             } else if (RoomManager.getRoom(roomId).mode === "ad") {
                 await createAdGame(io, socket, roomId, Array.from(roomMembers));
             }
         } else {
-            console.log("why");
+            console.log("Does room exist?", RoomManager.roomExists(roomId));
+            console.error(`Room ${roomId} does not exist`);
         }
     });
 

@@ -14,19 +14,18 @@ async function createGame(
     const url = "http://localhost:3003";
     const skt = io(url, { autoConnect: false });
     skt.open();
-    if (members.length === 1) {
-        await new Promise((resolve) => {
-            skt.emit("bot join", { roomId }, (callback) => {
-                members.push(callback["id"]);
-                resolve("done");
-            });
-        });
-    } else {
-        skt.close();
-    }
+    if (RoomManager.getRoom(roomId).maxPlayers == 1) {
+		await new Promise((resolve) => {
+			skt.emit('bot join', { roomId }, (callback) => {
+				RoomManager.joinRoom(roomId, callback['id']);
+				resolve('done');
+			});
+		});
+	} else {
+		skt.close();
+	}
 
-    RoomManager.createAdRoom(roomId, members);
-
+    RoomManager.createAdRoom(roomId);
     IO.to(roomId).emit("game ad start");
     const room = RoomManager.getAdRoom(roomId);
     updateGameState(IO, room);
