@@ -1,4 +1,4 @@
-import { generateRoomId } from "./utils/utils";
+import { countdown, generateRoomId } from "./utils/utils";
 import {
     createGame as createElimGame,
     createListeners as createElimListeners,
@@ -21,22 +21,6 @@ const io: Server = new Server(httpServer, {
         origin: "*", //TODO: Change to deployment platform
     },
 });
-
-const countdown = function (io: Server, roomId: string): Promise<string> {
-    let count = 3;
-    return new Promise((resolve) => {
-        const interval = setInterval(() => {
-            if (count === 0) {
-                resolve("done");
-                io.to(roomId).emit("countdown", "Start");
-                clearInterval(interval);
-            } else {
-                io.to(roomId).emit("countdown", count.toString());
-                count -= 1;
-            }
-        }, 1000);
-    });
-};
 
 app.post("/validateroom", (req: Request, res: Response) => {
     res.send(Boolean(io.sockets.adapter.rooms.get(req.body)));
