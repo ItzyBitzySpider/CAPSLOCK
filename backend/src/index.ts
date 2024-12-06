@@ -1,4 +1,4 @@
-import { generateRoomId } from "./utils/utils";
+import { countdown, generateRoomId } from "./utils/utils";
 import {
     createGame as createElimGame,
     createListeners as createElimListeners,
@@ -22,22 +22,6 @@ const io: Server = new Server(httpServer, {
     },
 });
 
-const countdown = function (io: Server, roomId: string): Promise<string> {
-    let count = 3;
-    return new Promise((resolve) => {
-        const interval = setInterval(() => {
-            if (count === 0) {
-                resolve("done");
-                io.to(roomId).emit("countdown", "Start");
-                clearInterval(interval);
-            } else {
-                io.to(roomId).emit("countdown", count.toString());
-                count -= 1;
-            }
-        }, 1000);
-    });
-};
-
 app.post("/validateroom", (req: Request, res: Response) => {
     res.send(Boolean(io.sockets.adapter.rooms.get(req.body)));
 });
@@ -47,7 +31,7 @@ io.on("connection", async (socket: Socket) => {
     createAdListeners(io, socket);
 
     socket.onAny((event: string, ...args: any[]) => {
-        console.log(socket.id + ":", event, args);
+        // console.log(socket.id + ":", event, args);
     });
 
     socket.on(
@@ -116,12 +100,13 @@ io.on("connection", async (socket: Socket) => {
         if (roomMembers) {
             await countdown(io, roomId);
             if (RoomManager.getRoom(roomId).mode === "elim") {
-                await createElimGame(io, roomId, Array.from(roomMembers));
+                await createElimGame(io, roomId);
             } else if (RoomManager.getRoom(roomId).mode === "ad") {
                 await createAdGame(io, socket, roomId, Array.from(roomMembers));
             }
         } else {
-            console.log("why");
+            console.log("Does room exist?", RoomManager.roomExists(roomId));
+            console.error(`Room ${roomId} does not exist`);
         }
     });
 
